@@ -1,0 +1,955 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Casa">
+<title>Casa 🏠</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #F7F5F0;
+  --surface: #FFFFFF;
+  --surface2: #F0EDE6;
+  --text: #1A1916;
+  --text2: #6B6860;
+  --text3: #9E9C96;
+  --accent: #2D5A3D;
+  --accent-light: #E8F0EA;
+  --accent2: #8B4513;
+  --accent2-light: #F5EDE6;
+  --warn: #C4610A;
+  --warn-light: #FEF3E8;
+  --border: rgba(0,0,0,0.08);
+  --border2: rgba(0,0,0,0.14);
+  --radius: 16px;
+  --radius-sm: 10px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;max-width:430px;margin:0 auto;}
+/* NAV */
+.nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:var(--surface);border-top:1px solid var(--border);display:flex;align-items:center;padding:8px 0 max(8px,env(safe-area-inset-bottom));z-index:100;}
+.nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 0;cursor:pointer;border:none;background:none;font-family:inherit;color:var(--text3);font-size:10px;font-weight:500;letter-spacing:0.02em;transition:color 0.2s;}
+.nav-btn.active{color:var(--accent);}
+.nav-icon{font-size:20px;line-height:1;position:relative;}
+.badge{position:absolute;top:-4px;right:-8px;background:#e74c3c;color:#fff;font-size:9px;font-weight:700;border-radius:8px;padding:1px 4px;line-height:1.4;}
+/* SCREENS */
+.screen{display:none;padding:0 0 90px;min-height:100vh;}
+.screen.active{display:block;}
+/* HEADER */
+.header{padding:52px 20px 16px;background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:50;}
+.header-row{display:flex;align-items:flex-end;justify-content:space-between;gap:10px;}
+.header-title{font-family:'DM Serif Display',serif;font-size:26px;color:var(--text);line-height:1;}
+.header-sub{font-size:12px;color:var(--text3);margin-top:3px;}
+.header-action{background:var(--accent);color:#fff;border:none;border-radius:var(--radius-sm);padding:8px 12px;font-family:inherit;font-size:12px;font-weight:500;cursor:pointer;white-space:nowrap;flex-shrink:0;}
+.header-action:active{opacity:0.82;transform:scale(0.97);}
+.header-action.outline{background:transparent;color:var(--accent);border:1.5px solid var(--accent);}
+/* TABS */
+.tabs{display:flex;padding:12px 20px 0;gap:4px;background:var(--surface);border-bottom:1px solid var(--border);}
+.tab{flex:1;padding:8px 4px;font-size:13px;font-weight:500;color:var(--text3);border:none;background:none;cursor:pointer;border-bottom:2px solid transparent;font-family:inherit;transition:all 0.2s;}
+.tab.active{color:var(--accent);border-bottom-color:var(--accent);}
+/* INPUTS */
+.field-label{font-size:12px;color:var(--text2);font-weight:500;margin-bottom:5px;display:block;}
+.text-input{width:100%;padding:10px 14px;border:1.5px solid var(--border2);border-radius:var(--radius-sm);font-family:inherit;font-size:15px;background:var(--bg);color:var(--text);outline:none;}
+.text-input:focus{border-color:var(--accent);}
+select.text-input{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%239E9C96' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;}
+/* BUTTONS */
+.btn-primary{width:100%;padding:13px;background:var(--accent);color:#fff;border:none;border-radius:var(--radius-sm);font-family:inherit;font-size:15px;font-weight:600;cursor:pointer;}
+.btn-primary:active{opacity:0.85;}
+.btn-secondary{width:100%;padding:11px;background:transparent;color:var(--text2);border:1.5px solid var(--border2);border-radius:var(--radius-sm);font-family:inherit;font-size:14px;cursor:pointer;margin-top:8px;}
+/* CHIPS */
+.chips{display:flex;gap:6px;flex-wrap:wrap;padding:12px 20px;}
+.chip{padding:5px 12px;border-radius:20px;font-size:12px;font-weight:500;border:1.5px solid var(--border2);cursor:pointer;background:var(--surface);color:var(--text2);transition:all 0.15s;white-space:nowrap;}
+.chip.active{background:var(--accent);color:#fff;border-color:var(--accent);}
+/* COMPRA */
+.compra-add-row{padding:12px 20px;display:flex;gap:8px;background:var(--surface);border-bottom:1px solid var(--border);}
+.compra-add-row .text-input{flex:1;}
+.btn-add{background:var(--accent);color:#fff;border:none;border-radius:var(--radius-sm);padding:10px 16px;font-size:18px;cursor:pointer;font-weight:300;line-height:1;}
+.section-label{font-size:11px;font-weight:600;letter-spacing:0.08em;color:var(--text3);text-transform:uppercase;padding:16px 20px 8px;}
+.compra-item{display:flex;align-items:center;gap:12px;background:var(--surface);padding:11px 20px;border-bottom:1px solid var(--border);cursor:pointer;transition:opacity 0.2s;}
+.compra-item.done{opacity:0.42;}
+.chk{width:22px;height:22px;border-radius:50%;border:2px solid var(--border2);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.2s;}
+.compra-item.done .chk{background:var(--accent);border-color:var(--accent);color:#fff;font-size:11px;}
+.compra-name{flex:1;font-size:15px;}
+.compra-item.done .compra-name{text-decoration:line-through;color:var(--text3);}
+.del-btn{color:var(--text3);background:none;border:none;font-size:18px;cursor:pointer;padding:4px;}
+.empty-state{text-align:center;padding:50px 20px;color:var(--text3);}
+.empty-icon{font-size:44px;margin-bottom:12px;}
+.empty-text{font-size:15px;line-height:1.6;}
+/* MENU */
+.menu-day{background:var(--surface);border-radius:var(--radius);border:1px solid var(--border);margin:0 20px 12px;overflow:hidden;}
+.menu-day-hdr{padding:10px 14px;background:var(--surface2);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.menu-day-name{font-weight:600;font-size:14px;}
+.meal-row{padding:11px 14px;display:flex;gap:10px;align-items:flex-start;border-bottom:1px solid var(--border);cursor:pointer;}
+.meal-row:last-child{border-bottom:none;}
+.meal-type{font-size:10px;font-weight:600;letter-spacing:0.05em;text-transform:uppercase;color:var(--text3);min-width:44px;padding-top:2px;}
+.meal-info{flex:1;}
+.meal-name{font-size:14px;font-weight:500;margin-bottom:3px;}
+.meal-tags{display:flex;gap:3px;flex-wrap:wrap;}
+.tag{font-size:10px;padding:2px 7px;border-radius:9px;font-weight:500;}
+.tag-fit,.tag-bajo-en-calorias{background:#E8F3EB;color:#1E6636;}
+.tag-postre{background:#FEE8F4;color:#9C1B6E;}
+.tag-rapido,.tag-rápido{background:#E8EFFE;color:#1D44A0;}
+.tag-desayuno{background:#FEF6E0;color:#8C5A00;}
+.tag-snack{background:#F3EBF8;color:#6B1EA0;}
+.tag-ensalada{background:#E0F5EE;color:#0E6B4A;}
+.tag-alto-en-proteinas,.tag-alto-en-proteínas{background:#FEF0E8;color:#A03A00;}
+.tag-street-food{background:#F5EBE0;color:#7A3A0A;}
+.tag-indulgente{background:#F5EDE6;color:#8B4513;}
+.tag-vegano{background:#EAF5E0;color:#3B6D11;}
+.swap-btn{color:var(--text3);background:none;border:none;font-size:16px;cursor:pointer;padding:2px;flex-shrink:0;}
+.gen-row{padding:12px 20px;display:flex;gap:8px;}
+.btn-gen{flex:1;padding:11px 8px;background:var(--accent);color:#fff;border:none;border-radius:var(--radius-sm);font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;}
+.btn-lista{flex:1;padding:11px 8px;background:transparent;color:var(--accent);border:1.5px solid var(--accent);border-radius:var(--radius-sm);font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;}
+/* RECETAS GRID */
+.recetas-grid{padding:12px 20px;display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.receta-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px;cursor:pointer;transition:border-color 0.15s;}
+.receta-card:active{background:var(--surface2);}
+.receta-card-name{font-size:13px;font-weight:500;margin-bottom:6px;line-height:1.4;}
+.receta-card-tags{display:flex;gap:3px;flex-wrap:wrap;}
+.receta-tipo{font-size:10px;color:var(--text3);margin-bottom:4px;text-transform:uppercase;letter-spacing:0.05em;}
+/* TAREAS */
+.tarea-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:13px 14px;margin:0 20px 10px;display:flex;align-items:flex-start;gap:12px;}
+.tarea-card.vence{border-left:3px solid var(--warn);}
+.tarea-card.hecha{border-left:3px solid var(--accent);opacity:0.55;}
+.avatar{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;}
+.av-hugo{background:#E0ECFF;color:#1A4FA0;}
+.av-edurne{background:#FFE0F4;color:#A01A5F;}
+.av-none{background:var(--surface2);color:var(--text3);}
+.tarea-body{flex:1;min-width:0;}
+.tarea-name{font-size:14px;font-weight:500;margin-bottom:2px;}
+.tarea-meta{font-size:12px;color:var(--text3);}
+.tarea-meta.warn{color:var(--warn);font-weight:500;}
+.tarea-zona{font-size:10px;font-weight:600;letter-spacing:0.05em;text-transform:uppercase;color:var(--text3);margin-bottom:3px;}
+.tarea-chk{width:24px;height:24px;border-radius:50%;border:2px solid var(--border2);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:all 0.2s;background:transparent;margin-top:3px;font-size:11px;color:transparent;}
+.tarea-card.hecha .tarea-chk{background:var(--accent);border-color:var(--accent);color:#fff;}
+.zona-section{padding:16px 20px 6px;}
+.zona-label{font-size:11px;font-weight:700;letter-spacing:0.1em;color:var(--text3);text-transform:uppercase;}
+/* MODAL */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,0.48);z-index:200;display:none;align-items:flex-end;justify-content:center;}
+.overlay.open{display:flex;}
+.modal{background:var(--surface);border-radius:20px 20px 0 0;width:100%;max-width:430px;max-height:88vh;overflow-y:auto;padding:20px 20px 40px;}
+.modal-handle{width:36px;height:4px;background:var(--border2);border-radius:2px;margin:0 auto 18px;}
+.modal-title{font-family:'DM Serif Display',serif;font-size:22px;margin-bottom:8px;}
+.modal-section{font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--text3);margin:16px 0 8px;}
+.ingr-li{padding:7px 0;border-bottom:1px solid var(--border);font-size:14px;display:flex;gap:8px;align-items:flex-start;}
+.ingr-li::before{content:'·';color:var(--accent);font-weight:bold;flex-shrink:0;}
+.step-li{padding:9px 0;border-bottom:1px solid var(--border);font-size:14px;line-height:1.6;display:flex;gap:10px;align-items:flex-start;}
+.step-num{min-width:22px;height:22px;border-radius:50%;background:var(--accent);color:#fff;font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;}
+.notas-box{background:var(--warn-light);border-radius:var(--radius-sm);padding:10px 12px;font-size:13px;line-height:1.6;color:var(--text2);margin-top:8px;white-space:pre-wrap;}
+/* TAG PILLS selector */
+.tag-picker{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;}
+.tag-pill{padding:5px 11px;border-radius:14px;font-size:12px;font-weight:500;border:1.5px solid var(--border2);cursor:pointer;background:var(--surface);color:var(--text2);transition:all 0.15s;}
+.tag-pill.on{background:var(--accent);color:#fff;border-color:var(--accent);}
+/* LOADING */
+.loading{display:flex;align-items:center;justify-content:center;padding:60px 20px;color:var(--text3);font-size:15px;gap:10px;}
+/* TOAST */
+.toast{position:fixed;bottom:96px;left:50%;transform:translateX(-50%);background:var(--text);color:#fff;padding:9px 18px;border-radius:20px;font-size:13px;z-index:400;opacity:0;transition:opacity 0.28s;pointer-events:none;white-space:nowrap;max-width:90%;}
+.toast.show{opacity:1;}
+/* ingr edit */
+.ingr-edit-list{margin-bottom:8px;}
+.ingr-edit-row{display:flex;gap:6px;margin-bottom:6px;align-items:center;}
+.ingr-edit-row .text-input{flex:1;padding:8px 10px;font-size:14px;}
+.ingr-del{background:none;border:none;color:var(--text3);font-size:18px;cursor:pointer;padding:4px;line-height:1;}
+.add-ingr-btn{background:none;border:1.5px dashed var(--border2);border-radius:var(--radius-sm);padding:8px;width:100%;color:var(--text3);font-size:13px;cursor:pointer;font-family:inherit;margin-bottom:12px;}
+/* steps edit */
+.step-edit-row{display:flex;gap:6px;margin-bottom:6px;align-items:flex-start;}
+.step-edit-row textarea{flex:1;padding:8px 10px;font-size:14px;border:1.5px solid var(--border2);border-radius:var(--radius-sm);font-family:inherit;background:var(--bg);color:var(--text);outline:none;resize:vertical;min-height:60px;}
+.step-edit-row textarea:focus{border-color:var(--accent);}
+</style>
+</head>
+<body>
+
+<!-- SCREEN: COMPRA -->
+<div id="s-compra" class="screen active">
+  <div class="header">
+    <div class="header-row">
+      <div><div class="header-title">La compra 🛒</div><div class="header-sub" id="compra-sub">Cargando...</div></div>
+      <button class="header-action" onclick="clearDone()">Borrar ✓</button>
+    </div>
+  </div>
+  <div class="compra-add-row">
+    <input class="text-input" id="compra-input" placeholder="Añadir producto..." onkeydown="if(event.key==='Enter')addCompra()">
+    <button class="btn-add" onclick="addCompra()">+</button>
+  </div>
+  <div id="compra-list"></div>
+</div>
+
+<!-- SCREEN: MENU -->
+<div id="s-menu" class="screen">
+  <div class="header">
+    <div class="header-row">
+      <div><div class="header-title">Menú 🥘</div><div class="header-sub" id="menu-sub">—</div></div>
+    </div>
+    <div class="tabs" style="padding:10px 0 0;margin-top:8px;">
+      <button class="tab active" id="tab-semana" onclick="setMenuTab('semana')">Esta semana</button>
+      <button class="tab" id="tab-recetas" onclick="setMenuTab('recetas')">Todos los platos</button>
+    </div>
+  </div>
+  <!-- SEMANA -->
+  <div id="view-semana">
+    <div class="gen-row">
+      <button class="btn-gen" onclick="generarMenu()">🎲 Generar menú</button>
+      <button class="btn-lista" onclick="menuACompra()">🛒 → Compra</button>
+    </div>
+    <div class="chips" id="menu-chips"></div>
+    <div id="menu-week" style="padding-top:4px"></div>
+  </div>
+  <!-- RECETAS -->
+  <div id="view-recetas" style="display:none">
+    <div class="chips" id="recetas-chips"></div>
+    <div id="recetas-grid"></div>
+    <div style="padding:0 20px 4px">
+      <button class="btn-gen" style="width:100%" onclick="openAddReceta()">+ Añadir plato</button>
+    </div>
+  </div>
+</div>
+
+<!-- SCREEN: TAREAS -->
+<div id="s-tareas" class="screen">
+  <div class="header">
+    <div class="header-row">
+      <div><div class="header-title">Tareas 🧹</div><div class="header-sub" id="tareas-sub">—</div></div>
+      <div style="display:flex;gap:6px">
+        <button class="header-action outline" onclick="reasignar()">🎲</button>
+        <button class="header-action" onclick="openAddTarea()">+ Añadir</button>
+      </div>
+    </div>
+    <div class="chips" style="padding:10px 0 0;margin-top:8px;" id="tareas-chips"></div>
+  </div>
+  <div id="tareas-list" style="padding-top:8px"></div>
+</div>
+
+<!-- NAV -->
+<nav class="nav">
+  <button class="nav-btn active" onclick="nav('compra',this)">
+    <span class="nav-icon">🛒</span>Compra
+  </button>
+  <button class="nav-btn" onclick="nav('menu',this)">
+    <span class="nav-icon">🥘</span>Menú
+  </button>
+  <button class="nav-btn" onclick="nav('tareas',this)" id="nav-tareas-btn">
+    <span class="nav-icon" id="nav-tareas-icon">🧹</span>Tareas
+  </button>
+</nav>
+
+<!-- OVERLAY: RECETA DETALLE -->
+<div class="overlay" id="ov-receta" onclick="closeOv('ov-receta',event)">
+  <div class="modal"><div class="modal-handle"></div><div id="receta-detail"></div></div>
+</div>
+
+<!-- OVERLAY: SELECCIONAR RECETA -->
+<div class="overlay" id="ov-select" onclick="closeOv('ov-select',event)">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div style="font-family:'DM Serif Display',serif;font-size:20px;margin-bottom:10px">Cambiar plato</div>
+    <div class="chips" id="sel-chips" style="padding:0;margin-bottom:10px;flex-wrap:wrap"></div>
+    <div id="sel-list" style="max-height:52vh;overflow-y:auto"></div>
+    <button class="btn-secondary" onclick="document.getElementById('ov-select').classList.remove('open')">Cancelar</button>
+  </div>
+</div>
+
+<!-- OVERLAY: ADD/EDIT RECETA -->
+<div class="overlay" id="ov-add-receta" onclick="closeOv('ov-add-receta',event)">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="add-receta-title">Nuevo plato</div>
+    <label class="field-label">Nombre del plato</label>
+    <input class="text-input" id="nr-nombre" placeholder="ej. Ensalada César" style="margin-bottom:12px">
+    <label class="field-label">Tipo</label>
+    <select class="text-input" id="nr-tipo" style="margin-bottom:12px">
+      <option value="tupper">🥡 Tupper (comida)</option>
+      <option value="cena">🌙 Cena</option>
+      <option value="postre">🍮 Postre</option>
+      <option value="desayuno">☀️ Desayuno</option>
+    </select>
+    <label class="field-label">Tiempo de preparación</label>
+    <input class="text-input" id="nr-tiempo" placeholder="ej. 30 min" style="margin-bottom:12px">
+    <label class="field-label">Etiquetas</label>
+    <div class="tag-picker" id="nr-tags"></div>
+    <label class="field-label">Ingredientes</label>
+    <div class="ingr-edit-list" id="nr-ingr-list"></div>
+    <button class="add-ingr-btn" onclick="addIngrRow()">+ Ingrediente</button>
+    <label class="field-label">Pasos</label>
+    <div class="ingr-edit-list" id="nr-step-list"></div>
+    <button class="add-ingr-btn" onclick="addStepRow()">+ Paso</button>
+    <button class="btn-primary" onclick="saveReceta()" style="margin-top:8px" id="save-receta-btn">Guardar plato</button>
+    <button class="btn-secondary" onclick="document.getElementById('ov-add-receta').classList.remove('open')">Cancelar</button>
+  </div>
+</div>
+
+<!-- OVERLAY: ADD TAREA -->
+<div class="overlay" id="ov-add-tarea" onclick="closeOv('ov-add-tarea',event)">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Nueva tarea</div>
+    <label class="field-label">Nombre</label>
+    <input class="text-input" id="nt-nombre" placeholder="ej. Limpiar ventanas" style="margin-bottom:12px">
+    <label class="field-label">Zona</label>
+    <select class="text-input" id="nt-zona" style="margin-bottom:12px">
+      <option>General</option><option>Baño</option><option>Cocina</option>
+      <option>Dormitorio</option><option>Electronica</option><option>Otra</option>
+    </select>
+    <label class="field-label">Frecuencia</label>
+    <select class="text-input" id="nt-freq-sel" style="margin-bottom:8px" onchange="toggleCustomFreq()">
+      <option value="2">Cada 2 días</option>
+      <option value="7" selected>Semanal (7 días)</option>
+      <option value="14">Quincenal (14 días)</option>
+      <option value="30">Mensual (30 días)</option>
+      <option value="90">Cada 3 meses</option>
+      <option value="180">Cada 6 meses</option>
+      <option value="365">Anual</option>
+      <option value="custom">Personalizado...</option>
+    </select>
+    <input class="text-input" id="nt-freq-custom" type="number" min="1" placeholder="Número de días" style="margin-bottom:12px;display:none">
+    <label class="field-label">Notas (opcional)</label>
+    <textarea class="text-input" id="nt-notas" rows="3" placeholder="Instrucciones..." style="margin-bottom:12px;resize:vertical"></textarea>
+    <button class="btn-primary" onclick="saveTarea()">Guardar</button>
+    <button class="btn-secondary" onclick="document.getElementById('ov-add-tarea').classList.remove('open')">Cancelar</button>
+  </div>
+</div>
+
+<!-- OVERLAY: TAREA DETALLE -->
+<div class="overlay" id="ov-tarea" onclick="closeOv('ov-tarea',event)">
+  <div class="modal"><div class="modal-handle"></div><div id="tarea-detail"></div></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- FIREBASE -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, collection, doc, onSnapshot, setDoc, updateDoc, deleteDoc, getDocs, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyA_a0d7l1gSp7Z2bXna-JxGXsx0ovY_sz4",
+  authDomain: "casa-hugo-edurne.firebaseapp.com",
+  projectId: "casa-hugo-edurne",
+  storageBucket: "casa-hugo-edurne.firebasestorage.app",
+  messagingSenderId: "159131780214",
+  appId: "1:159131780214:web:986305f3074b8ebc058b57"
+};
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+// ── COLECCIONES ──
+const colCompra = collection(db,'compra');
+const colRecetas = collection(db,'recetas');
+const colMenu = collection(db,'menu');
+const colTareas = collection(db,'tareas');
+
+// ── STATE ──
+window._compra = [];
+window._recetas = [];
+window._menu = null;
+window._tareas = [];
+window._editingRecetaId = null;
+
+// ── TAGS DISPONIBLES ──
+const ALL_TAGS = ['fit','postre','rápido','desayuno','snack','ensalada','bajo en calorías','alto en proteínas','street food','vegano','indulgente'];
+window.ALL_TAGS = ALL_TAGS;
+
+function tagClass(t){ return 'tag-'+t.toLowerCase().replace(/\s+/g,'-').replace(/[áàä]/g,'a').replace(/[éèë]/g,'e').replace(/[íìï]/g,'i').replace(/[óòö]/g,'o').replace(/[úùü]/g,'u'); }
+window.tagClass = tagClass;
+
+function tagHTML(t){ return `<span class="tag ${tagClass(t)}">${t}</span>`; }
+window.tagHTML = tagHTML;
+
+// ── TOAST ──
+function toast(msg){ const el=document.getElementById('toast'); el.textContent=msg; el.classList.add('show'); setTimeout(()=>el.classList.remove('show'),2400); }
+window.toast = toast;
+
+function closeOv(id,e){ if(!e||e.target===document.getElementById(id)) document.getElementById(id).classList.remove('open'); }
+window.closeOv = closeOv;
+
+// ══════════════════════════════════
+// COMPRA
+// ══════════════════════════════════
+onSnapshot(colCompra, snap => {
+  window._compra = snap.docs.map(d=>({id:d.id,...d.data()}));
+  renderCompra();
+});
+
+function renderCompra(){
+  const items = window._compra.sort((a,b)=>(a.ts||0)-(b.ts||0));
+  const pend = items.filter(i=>!i.done);
+  const done = items.filter(i=>i.done);
+  document.getElementById('compra-sub').textContent = `${pend.length} pendiente${pend.length!==1?'s':''}`;
+  let html='';
+  if(!items.length){ html=`<div class="empty-state"><div class="empty-icon">🛒</div><div class="empty-text">La lista está vacía</div></div>`; }
+  else {
+    if(pend.length){ html+=`<div class="section-label">Pendiente (${pend.length})</div>`+pend.map(ci).join(''); }
+    if(done.length){ html+=`<div class="section-label">En el carro (${done.length})</div>`+done.map(ci).join(''); }
+  }
+  document.getElementById('compra-list').innerHTML=html;
+}
+function ci(i){ return `<div class="compra-item${i.done?' done':''}" onclick="toggleCompra('${i.id}')"><div class="chk">${i.done?'✓':''}</div><span class="compra-name">${i.name}</span><button class="del-btn" onclick="event.stopPropagation();delCompra('${i.id}')">✕</button></div>`; }
+
+window.addCompra = async function(name){
+  const inp=document.getElementById('compra-input');
+  const n=(name||inp.value).trim(); if(!n) return;
+  await addDoc(colCompra,{name:n,done:false,ts:Date.now()});
+  if(!name){inp.value='';inp.focus();}
+};
+window.toggleCompra = async function(id){
+  const i=window._compra.find(x=>x.id===id); if(!i) return;
+  await updateDoc(doc(db,'compra',id),{done:!i.done});
+};
+window.delCompra = async function(id){ await deleteDoc(doc(db,'compra',id)); };
+window.clearDone = async function(){
+  const done=window._compra.filter(i=>i.done);
+  await Promise.all(done.map(i=>deleteDoc(doc(db,'compra',i.id))));
+  toast('Hechos eliminados ✓');
+};
+
+// ══════════════════════════════════
+// RECETAS — seed inicial
+// ══════════════════════════════════
+const SEED_RECETAS = [
+  {nombre:"Pollo al limón con quinoa",tipo:"tupper",tags:["fit","alto en proteínas"],tiempo:"35 min",ingredientes:["2 pechugas de pollo","1 taza de quinoa","1 limón","2 dientes de ajo","Aceite de oliva","Sal y pimienta","Perejil fresco"],pasos:["Cocer la quinoa en agua salada 15 min.","Marinar el pollo con zumo de limón, ajo y aceite.","Cocinar el pollo a la plancha 6-7 min por lado.","Servir sobre la quinoa con perejil fresco."]},
+  {nombre:"Arroz con verduras al wok",tipo:"tupper",tags:["fit","vegano","bajo en calorías"],tiempo:"25 min",ingredientes:["2 tazas arroz integral","Pimiento rojo y verde","1 cebolla","2 zanahorias","Salsa de soja","Jengibre fresco","Aceite de sésamo"],pasos:["Cocer el arroz integral 35 min.","Saltear las verduras en wok a fuego alto.","Añadir salsa de soja y jengibre rallado.","Mezclar con el arroz y servir."]},
+  {nombre:"Pasta con atún y tomate",tipo:"tupper",tags:["rápido"],tiempo:"20 min",ingredientes:["300g pasta","2 latas de atún","1 bote tomate triturado","2 dientes de ajo","Albahaca fresca","Sal y aceite de oliva"],pasos:["Cocer la pasta al dente.","Sofreír el ajo y añadir el tomate.","Incorporar el atún y cocinar 5 min.","Mezclar con la pasta y añadir albahaca."]},
+  {nombre:"Lentejas con verduras",tipo:"tupper",tags:["fit","vegano","alto en proteínas"],tiempo:"40 min",ingredientes:["400g lentejas","1 cebolla","2 zanahorias","1 pimiento rojo","2 dientes de ajo","Comino y pimentón","Tomate triturado","Sal y aceite"],pasos:["Sofreír cebolla, ajo y pimiento.","Añadir las lentejas y cubrir con agua.","Incorporar especias y tomate.","Cocer 35-40 min hasta que estén tiernas."]},
+  {nombre:"Ensalada de garbanzos",tipo:"tupper",tags:["fit","vegano","ensalada","alto en proteínas"],tiempo:"10 min",ingredientes:["1 bote de garbanzos","Tomate cherry","1 pepino","Cebolla roja","Queso feta","Aceitunas negras","Vinagreta de limón y orégano"],pasos:["Escurrir y aclarar los garbanzos.","Cortar las verduras en trozos.","Mezclar todo en un bol grande.","Aliñar con vinagreta de limón."]},
+  {nombre:"Pollo al curry con arroz basmati",tipo:"tupper",tags:["fit","alto en proteínas"],tiempo:"35 min",ingredientes:["2 pechugas de pollo","1 taza arroz basmati","200ml leche de coco","2 cdas curry en polvo","1 cebolla","2 dientes de ajo","Jengibre fresco","1 tomate"],pasos:["Cocinar cebolla, ajo y jengibre hasta dorar.","Añadir pollo troceado y dorar por todos lados.","Incorporar curry, tomate y leche de coco.","Cocinar 20 min. Servir con arroz basmati."]},
+  {nombre:"Macarrones con chorizo",tipo:"tupper",tags:["indulgente"],tiempo:"30 min",ingredientes:["300g macarrones","200g chorizo ibérico","Tomate triturado","1 cebolla","1 pimiento verde","Queso manchego rallado","Sal y aceite"],pasos:["Cocer la pasta al dente.","Sofreír cebolla y pimiento, añadir chorizo.","Incorporar tomate y cocinar 10 min.","Mezclar con la pasta y gratinar con queso."]},
+  {nombre:"Salmón al horno con patatas",tipo:"tupper",tags:["fit","alto en proteínas"],tiempo:"35 min",ingredientes:["2 lomos de salmón","4 patatas medianas","1 limón","Eneldo seco","Ajo en polvo","Aceite de oliva","Sal y pimienta"],pasos:["Precalentar horno a 200°C.","Cortar las patatas en gajos y hornear 20 min.","Añadir el salmón sazonado y hornear 15 min más.","Servir con rodajas de limón y eneldo."]},
+  {nombre:"Berenjenas rellenas de carne",tipo:"tupper",tags:["fit","alto en proteínas"],tiempo:"50 min",ingredientes:["2 berenjenas grandes","300g carne picada mixta","Tomate triturado","1 cebolla","2 dientes de ajo","Queso mozzarella","Orégano","Sal y aceite"],pasos:["Cortar las berenjenas por la mitad y hornear 20 min a 180°C.","Sofreír cebolla y carne, añadir tomate y orégano.","Rellenar las berenjenas con el sofrito.","Cubrir con mozzarella y gratinar 10 min."]},
+  {nombre:"Ensalada César",tipo:"cena",tags:["fit","rápido","ensalada"],tiempo:"15 min",ingredientes:["1 lechuga romana","2 pechugas de pollo a la plancha","Picatostes","Queso parmesano rallado","Salsa César","1 limón"],pasos:["Lavar y trocear la lechuga en tiras.","Cocinar el pollo a la plancha y laminar.","Mezclar lechuga con salsa César.","Añadir pollo, parmesano y picatostes."]},
+  {nombre:"Pisto manchego con huevos",tipo:"cena",tags:["fit","vegano","bajo en calorías"],tiempo:"30 min",ingredientes:["2 calabacines","1 berenjena","Pimiento rojo y verde","1 cebolla","Tomate triturado","4 huevos","Aceite y sal"],pasos:["Cortar todas las verduras en dados.","Sofreír la cebolla y los pimientos 5 min.","Añadir calabacín, berenjena y tomate.","Cocer 20 min y hacer los huevos encima."]},
+  {nombre:"Pizza casera margherita",tipo:"cena",tags:["indulgente"],tiempo:"60 min",ingredientes:["1 masa de pizza","Tomate triturado","Mozzarella fresca","Albahaca fresca","Aceite de oliva virgen","Sal"],pasos:["Estirar la masa y precalentar horno a 220°C.","Extender el tomate con sal y aceite.","Distribuir la mozzarella en trozos.","Hornear 12-15 min. Decorar con albahaca."]},
+  {nombre:"Crema de calabaza",tipo:"cena",tags:["fit","vegano","bajo en calorías"],tiempo:"35 min",ingredientes:["1 kg calabaza","1 cebolla","1 patata","800ml caldo de verduras","Jengibre fresco","Nata de coco","Sal y pimienta"],pasos:["Trocear la calabaza, cebolla y patata.","Cocer todo con el caldo 25 min.","Añadir jengibre rallado y triturar.","Servir con un chorrito de nata de coco."]},
+  {nombre:"Tacos de pollo",tipo:"cena",tags:["rápido","street food"],tiempo:"25 min",ingredientes:["8 tortillas de maíz","2 pechugas de pollo","2 aguacates","2 tomates","Cebolla morada","Cilantro fresco","1 lima","Crema agria"],pasos:["Salpimentar y cocinar el pollo a la plancha.","Cortar el pollo en tiras finas.","Preparar el guacamole con aguacate y lima.","Montar los tacos con todos los ingredientes."]},
+  {nombre:"Revuelto de setas y gambas",tipo:"cena",tags:["fit","rápido","alto en proteínas"],tiempo:"15 min",ingredientes:["300g setas variadas","200g gambas peladas","4 huevos camperos","2 dientes de ajo","Perejil fresco","Aceite de oliva","Sal y pimienta"],pasos:["Saltear el ajo laminado en aceite caliente.","Añadir las setas y cocinar hasta que suelten el agua.","Incorporar las gambas y cocinar 2 min.","Batir los huevos, verter y remover a fuego suave."]},
+  {nombre:"Gazpacho con guarnición",tipo:"cena",tags:["fit","vegano","bajo en calorías"],tiempo:"15 min",ingredientes:["1 kg tomates maduros","1 pepino","1 pimiento verde","1 diente de ajo","Pan del día anterior","Vinagre de jerez","Aceite de oliva virgen extra","Sal"],pasos:["Trocear todas las verduras sin pelar el tomate.","Triturar junto con pan, vinagre y aceite.","Colar con un colador fino.","Ajustar sal y vinagre. Servir muy frío."]},
+  {nombre:"Fideos con almejas",tipo:"cena",tags:["fit","alto en proteínas"],tiempo:"30 min",ingredientes:["300g fideos nº 2","500g almejas","3 dientes de ajo","100ml vino blanco","Perejil fresco","500ml fumet de pescado","Aceite y sal"],pasos:["Sofreír el ajo y añadir almejas con el vino.","Cuando abran, reservar las almejas.","Tostar los fideos en el mismo aceite.","Añadir el fumet e incorporar las almejas."]},
+  {nombre:"Mousse de chocolate negro",tipo:"postre",tags:["postre","indulgente"],tiempo:"20 min + 2h nevera",ingredientes:["200g chocolate 70%","4 huevos L","2 cdas azúcar","1 pizca de sal","Nata para montar"],pasos:["Derretir el chocolate al baño maría y dejar templar.","Separar yemas de claras.","Montar las claras a punto de nieve firme con la sal.","Mezclar chocolate con yemas, incorporar claras en 3 veces. Refrigerar 2h."]},
+  {nombre:"Tiramisú exprés",tipo:"postre",tags:["postre","indulgente"],tiempo:"20 min + 4h nevera",ingredientes:["250g mascarpone","3 huevos L","100g azúcar","20 bizcochos de soletilla","200ml café exprés frío","Cacao puro en polvo","Amaretto (opcional)"],pasos:["Batir yemas con azúcar hasta obtener crema blanquecina.","Mezclar suavemente con el mascarpone.","Montar las claras e incorporar a la crema.","Montar en capas con bizcochos empapados. Refrigerar 4h mínimo."]},
+  {nombre:"Helado de plátano",tipo:"postre",tags:["postre","fit","vegano","bajo en calorías"],tiempo:"5 min + congelador",ingredientes:["4 plátanos muy maduros","2 cdas mantequilla de cacahuete","4 cdas leche de almendra","1 cda cacao puro en polvo"],pasos:["Congelar los plátanos troceados mínimo 4 horas.","Batir en procesador hasta obtener textura cremosa.","Añadir mantequilla de cacahuete y cacao.","Servir inmediatamente o congelar 1h más."]},
+  {nombre:"Tarta de queso vasca",tipo:"postre",tags:["postre","indulgente"],tiempo:"60 min",ingredientes:["500g queso crema Philadelphia","200ml nata para montar","3 huevos L","150g azúcar","1 cda harina","1 cdita extracto de vainilla"],pasos:["Precalentar horno a 200°C con aire.","Batir todos los ingredientes hasta mezcla homogénea.","Verter en molde forrado con papel de horno.","Hornear 25-30 min hasta que la superficie esté tostada."]},
+  {nombre:"Avena con frutas",tipo:"desayuno",tags:["desayuno","fit","bajo en calorías"],tiempo:"10 min",ingredientes:["80g copos de avena","300ml leche o bebida vegetal","1 plátano","Frutos rojos","Miel","Canela en polvo"],pasos:["Calentar la leche con la avena 3-4 min removiendo.","Añadir canela y miel al gusto.","Servir en bol y añadir el plátano en rodajas.","Decorar con frutos rojos."]},
+  {nombre:"Tostadas con aguacate",tipo:"desayuno",tags:["desayuno","fit","vegano"],tiempo:"10 min",ingredientes:["2 rebanadas pan de masa madre","1 aguacate maduro","2 huevos","Tomate cherry","Sal en escamas","Pimienta negra","Aceite de oliva","Semillas de sésamo"],pasos:["Tostar el pan y aplasta el aguacate sobre él.","Pochar o freír los huevos al gusto.","Colocar encima de las tostadas.","Añadir tomate, sal, pimienta y sésamo."]},
+  {nombre:"Hummus con crudités",tipo:"snack",tags:["snack","fit","vegano","bajo en calorías"],tiempo:"15 min",ingredientes:["1 bote de garbanzos","2 cdas tahini","1 limón","1 diente de ajo","Aceite de oliva","Pimentón ahumado","Zanahorias, pepino, apio"],pasos:["Escurrir los garbanzos reservando el líquido.","Triturar con tahini, zumo de limón, ajo y aceite.","Añadir líquido de cocción hasta la textura deseada.","Servir con las verduras cortadas en bastones."]},
+  {nombre:"Nachos con guacamole",tipo:"snack",tags:["snack","street food","indulgente"],tiempo:"15 min",ingredientes:["200g nachos","3 aguacates","1 tomate","Cebolla morada","Cilantro","1 lima","Jalapeños","Crema agria"],pasos:["Aplastar los aguacates con un tenedor.","Añadir tomate picado, cebolla y cilantro.","Aliñar con zumo de lima y sal.","Servir con los nachos y la crema agria."]},
+  {nombre:"Pad thai de gambas",tipo:"cena",tags:["street food","rápido"],tiempo:"25 min",ingredientes:["200g fideos de arroz","300g gambas peladas","2 huevos","Brotes de soja","Cebolleta","Cacahuetes tostados","Salsa de soja","Zumo de lima"],pasos:["Remojar los fideos en agua caliente 8 min.","Saltear las gambas en wok a fuego alto.","Añadir los fideos y la salsa, remover bien.","Hacer huevo revuelto en el wok. Servir con cacahuetes y lima."]},
+];
+
+async function seedRecetasIfEmpty(){
+  const snap = await getDocs(colRecetas);
+  if(snap.empty){
+    for(const r of SEED_RECETAS){ await addDoc(colRecetas, r); }
+    toast('Recetas cargadas ✓');
+  }
+}
+
+async function seedTareasIfEmpty(){
+  const snap = await getDocs(colTareas);
+  if(!snap.empty) return;
+  const FREQ_MAP = {'semanal':7,'quincenal':14,'mensual':30,'3 mesos':90,'6 mesos':180,'anual':365,'2 días':2};
+  function parseFreq(f){
+    const fl=f.toLowerCase().trim();
+    for(const[k,v] of Object.entries(FREQ_MAP)){ if(fl.includes(k)) return v; }
+    return 30;
+  }
+  function parseDate(s){
+    if(!s) return null;
+    const meses={enero:0,febrero:1,marzo:2,abril:3,mayo:4,junio:5,julio:6,agosto:7,septiembre:8,octubre:9,noviembre:10,diciembre:11};
+    const m=s.match(/(\d+)\s+de\s+(\w+)\s+de\s+(\d+)/i);
+    if(m){ const mes=meses[m[2].toLowerCase()]; if(mes!==undefined) return new Date(+m[3],mes,+m[1]).toISOString(); }
+    return null;
+  }
+  const DATA = [
+    {nombre:"Limpiar lavadora",zona:"Baño",freq:90,ultima:"2025-10-01",notas:"Lavado en vacío a 60-90º con vinagre o producto específico.\nLimpia goma y cajetín. Deja la puerta abierta."},
+    {nombre:"Limpiar productos lavabo",zona:"Baño",freq:90,ultima:"2025-10-01",notas:""},
+    {nombre:"Cambiar cabezal cepillo de dientes",zona:"Baño",freq:180,ultima:"2025-08-01",notas:""},
+    {nombre:"Limpiar fundas cojines sofá",zona:"General",freq:30,ultima:"2026-01-14",notas:""},
+    {nombre:"Limpiar cajones",zona:"General",freq:90,ultima:"2025-11-18",notas:""},
+    {nombre:"Limpiar cortinas",zona:"General",freq:180,ultima:"2025-09-10",notas:""},
+    {nombre:"Limpiar plancha de pelo",zona:"Baño",freq:30,ultima:"2026-02-12",notas:"Desenchufada y fría. Algodón con alcohol o vinagre. Frota placas suavemente. Seca bien."},
+    {nombre:"Limpiar persianas",zona:"General",freq:180,ultima:"2025-09-13",notas:"Cierra persiana. Plumero o aspirador. Trapo con agua + jabón. Seca antes de subir."},
+    {nombre:"Limpiar manta sofá",zona:"General",freq:30,ultima:"2026-02-14",notas:""},
+    {nombre:"Cambiar sábana bajera",zona:"Dormitorio",freq:14,ultima:"2026-03-04",notas:""},
+    {nombre:"Limpiar mandos TV",zona:"General",freq:7,ultima:"2026-03-14",notas:"Quita las pilas. Trapo con alcohol 70º. Bastoncillo para los botones. Seca bien antes de poner las pilas."},
+    {nombre:"Limpiar cepillo del pelo",zona:"Baño",freq:14,ultima:"2026-03-08",notas:""},
+    {nombre:"Limpiar alfombrilla baño",zona:"Baño",freq:14,ultima:"2026-03-08",notas:""},
+    {nombre:"Cambiar toallas",zona:"Baño",freq:14,ultima:"2026-03-08",notas:""},
+    {nombre:"Limpiar campana extractora",zona:"Cocina",freq:30,ultima:"2026-03-08",notas:"Exterior: agua caliente + jabón.\nFiltros: 1. Agua muy caliente. 2. Bicarbonato + vinagre. 3. 20-30 min remojo. 4. Cepillo + aclarar + secar."},
+    {nombre:"Limpiar armario",zona:"General",freq:30,ultima:"2026-03-08",notas:""},
+    {nombre:"Limpiar mueble TV",zona:"General",freq:30,ultima:"2026-03-08",notas:""},
+    {nombre:"Limpiar nevera",zona:"Cocina",freq:30,ultima:"2026-04-27",notas:"Agua tibia + bicarbonato o agua + vinagre. Seca bien antes de volver a meter comida."},
+    {nombre:"Limpiar trapos",zona:"Baño",freq:7,ultima:"2026-04-27",notas:"Lávalos en lavadora a 60º. O hiérvelos 5-10 min. Sécalos siempre bien."},
+    {nombre:"Limpiar portátil",zona:"Electronica",freq:7,ultima:"2026-04-27",notas:"Pantalla: trapo microfibra + agua. Teclado: aire comprimido + trapo con alcohol."},
+    {nombre:"Limpiar teclado + ratón",zona:"Electronica",freq:7,ultima:"2026-04-27",notas:"Dale la vuelta al teclado y sacude. Aire comprimido. Trapo con alcohol para teclas. Ratón: alcohol en trapo + bastoncillo en sensor."},
+    {nombre:"Limpiar auriculares",zona:"Electronica",freq:7,ultima:"2026-04-27",notas:""},
+    {nombre:"Limpiar cubos de basura",zona:"Cocina",freq:7,ultima:"2026-04-27",notas:"Aclara restos. Agua caliente + vinagre o lejía diluida. Frota fondo y tapa. Deja secar al aire."},
+    {nombre:"Limpiar exterior muebles cocina",zona:"Cocina",freq:7,ultima:"2026-04-27",notas:""},
+    {nombre:"Quitar el polvo",zona:"General",freq:7,ultima:"2026-04-27",notas:""},
+    {nombre:"Limpiar neceser maquillaje",zona:"Baño",freq:90,ultima:"2026-02-10",notas:""},
+    {nombre:"Limpiar aspiradora",zona:"Electronica",freq:14,ultima:"2026-04-27",notas:""},
+    {nombre:"Limpiar cepillo de dientes eléctrico",zona:"Baño",freq:14,ultima:"2026-04-27",notas:""},
+    {nombre:"Limpiar microondas",zona:"Cocina",freq:14,ultima:"2026-04-27",notas:"Bol con agua + zumo de limón. 3-5 min a máxima potencia. Deja reposar 2 min. Pasa un trapo."},
+    {nombre:"Cambiar sábanas completo",zona:"Dormitorio",freq:14,ultima:"2026-04-27",notas:""},
+    {nombre:"Limpiar ventanas",zona:"General",freq:90,ultima:"2026-02-14",notas:""},
+    {nombre:"Limpiar edredón",zona:"Dormitorio",freq:365,ultima:"2025-05-14",notas:""},
+    {nombre:"Limpiar cortina ducha",zona:"Baño",freq:30,ultima:"2026-04-27",notas:""},
+    {nombre:"Limpiar funda sofá",zona:"General",freq:30,ultima:"2026-04-27",notas:""},
+    {nombre:"Revisar ropa",zona:"Dormitorio",freq:90,ultima:"2026-03-08",notas:""},
+    {nombre:"Limpiar azulejos",zona:"Baño",freq:90,ultima:"2026-04-27",notas:"Mantenimiento: agua + vinagre.\nCal: vinagre caliente o antical. Juntas: bicarbonato + agua + cepillo de dientes."},
+    {nombre:"Limpiar nevera (comida)",zona:"Cocina",freq:90,ultima:"2026-01-31",notas:"Revisar caducidades y ordenar."},
+  ];
+  for(const t of DATA){
+    await addDoc(colTareas,{
+      nombre:t.nombre, zona:t.zona, freq:t.freq,
+      ultima:t.ultima||null, asignado:null, hoyDone:false, notas:t.notas||""
+    });
+  }
+  toast('Tareas importadas ✓');
+}
+
+seedRecetasIfEmpty();
+seedTareasIfEmpty();
+
+// ══════════════════════════════════
+// RECETAS
+// ══════════════════════════════════
+let recetaFilter = null;
+let recetaTabFilter = null;
+
+onSnapshot(colRecetas, snap => {
+  window._recetas = snap.docs.map(d=>({id:d.id,...d.data()}));
+  renderRecetas();
+  renderMenuChips();
+});
+
+function renderRecetas(){
+  const chips = document.getElementById('recetas-chips');
+  const tags = ALL_TAGS;
+  chips.innerHTML = `<div class="chip${!recetaTabFilter?' active':''}" onclick="setRecetaFilter(null)">Todos</div>`
+    + tags.map(t=>`<div class="chip${recetaTabFilter===t?' active':''}" onclick="setRecetaFilter('${t}')">${t}</div>`).join('');
+  let recs = window._recetas;
+  if(recetaTabFilter) recs = recs.filter(r=>r.tags&&r.tags.includes(recetaTabFilter));
+  const grid = document.getElementById('recetas-grid');
+  if(!recs.length){ grid.innerHTML=`<div class="empty-state"><div class="empty-icon">🍽️</div><div class="empty-text">No hay platos con ese filtro</div></div>`; return; }
+  const grupos = {};
+  recs.forEach(r=>{ (grupos[r.tipo]=grupos[r.tipo]||[]).push(r); });
+  const tipoLabel = {tupper:'🥡 Tuppers',cena:'🌙 Cenas',postre:'🍮 Postres',desayuno:'☀️ Desayunos'};
+  let html='';
+  for(const tipo of ['tupper','cena','postre','desayuno']){
+    if(!grupos[tipo]) continue;
+    html+=`<div class="section-label">${tipoLabel[tipo]||tipo}</div><div class="recetas-grid">`;
+    grupos[tipo].forEach(r=>{
+      html+=`<div class="receta-card" onclick="openReceta('${r.id}')">
+        <div class="receta-tipo">${tipoLabel[r.tipo]||r.tipo}</div>
+        <div class="receta-card-name">${r.nombre}</div>
+        <div class="receta-card-tags">${(r.tags||[]).map(t=>tagHTML(t)).join('')}</div>
+      </div>`;
+    });
+    html+='</div>';
+  }
+  grid.innerHTML=html;
+}
+window.setRecetaFilter=function(t){recetaTabFilter=t;renderRecetas();}
+
+window.openReceta = function(id){
+  const r=window._recetas.find(x=>x.id===id); if(!r) return;
+  document.getElementById('receta-detail').innerHTML=`
+    <div class="modal-title">${r.nombre}</div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px">${(r.tags||[]).map(t=>tagHTML(t)).join('')}</div>
+    <div style="font-size:13px;color:var(--text3);margin-bottom:4px">⏱ ${r.tiempo||'—'}</div>
+    <div class="modal-section">Ingredientes</div>
+    ${(r.ingredientes||[]).map(i=>`<div class="ingr-li">${i}</div>`).join('')}
+    <div class="modal-section">Preparación</div>
+    ${(r.pasos||[]).map((p,i)=>`<div class="step-li"><span class="step-num">${i+1}</span>${p}</div>`).join('')}
+    <button class="btn-primary" style="margin-top:16px" onclick="addIngrs('${id}')">🛒 Añadir ingredientes a la compra</button>
+    <button class="btn-secondary" onclick="editReceta('${id}')">✏️ Editar plato</button>
+    <button class="btn-secondary" style="color:#c0392b;border-color:#c0392b" onclick="delReceta('${id}')">🗑 Eliminar plato</button>
+  `;
+  document.getElementById('ov-receta').classList.add('open');
+};
+
+window.addIngrs = async function(id){
+  const r=window._recetas.find(x=>x.id===id); if(!r) return;
+  let n=0;
+  for(const ing of (r.ingredientes||[])){
+    if(!window._compra.find(c=>c.name.toLowerCase()===ing.toLowerCase())){
+      await addDoc(colCompra,{name:ing,done:false,ts:Date.now()}); n++;
+    }
+  }
+  document.getElementById('ov-receta').classList.remove('open');
+  toast(`${n} ingredientes añadidos 🛒`);
+};
+
+window.delReceta = async function(id){
+  if(!confirm('¿Eliminar este plato?')) return;
+  await deleteDoc(doc(db,'recetas',id));
+  document.getElementById('ov-receta').classList.remove('open');
+  toast('Plato eliminado');
+};
+
+// ADD / EDIT RECETA
+window.openAddReceta = function(){
+  window._editingRecetaId = null;
+  document.getElementById('add-receta-title').textContent='Nuevo plato';
+  document.getElementById('save-receta-btn').textContent='Guardar plato';
+  document.getElementById('nr-nombre').value='';
+  document.getElementById('nr-tipo').value='tupper';
+  document.getElementById('nr-tiempo').value='';
+  document.getElementById('nr-ingr-list').innerHTML='';
+  document.getElementById('nr-step-list').innerHTML='';
+  addIngrRow(); addIngrRow(); addStepRow(); addStepRow();
+  renderTagPicker([]);
+  document.getElementById('ov-add-receta').classList.add('open');
+};
+
+window.editReceta = function(id){
+  const r=window._recetas.find(x=>x.id===id); if(!r) return;
+  window._editingRecetaId = id;
+  document.getElementById('add-receta-title').textContent='Editar plato';
+  document.getElementById('save-receta-btn').textContent='Guardar cambios';
+  document.getElementById('nr-nombre').value=r.nombre||'';
+  document.getElementById('nr-tipo').value=r.tipo||'tupper';
+  document.getElementById('nr-tiempo').value=r.tiempo||'';
+  document.getElementById('nr-ingr-list').innerHTML='';
+  document.getElementById('nr-step-list').innerHTML='';
+  (r.ingredientes||[]).forEach(i=>addIngrRow(i));
+  (r.pasos||[]).forEach(p=>addStepRow(p));
+  if(!r.ingredientes||!r.ingredientes.length) addIngrRow();
+  if(!r.pasos||!r.pasos.length) addStepRow();
+  renderTagPicker(r.tags||[]);
+  document.getElementById('ov-receta').classList.remove('open');
+  document.getElementById('ov-add-receta').classList.add('open');
+};
+
+function renderTagPicker(selected){
+  const c=document.getElementById('nr-tags');
+  c.innerHTML=ALL_TAGS.map(t=>`<div class="tag-pill${selected.includes(t)?' on':''}" onclick="this.classList.toggle('on')" data-tag="${t}">${t}</div>`).join('');
+}
+window.addIngrRow=function(val=''){
+  const el=document.createElement('div'); el.className='ingr-edit-row';
+  el.innerHTML=`<input class="text-input" value="${val}" placeholder="ej. 2 tomates">
+    <button class="ingr-del" onclick="this.parentNode.remove()">✕</button>`;
+  document.getElementById('nr-ingr-list').appendChild(el);
+};
+window.addStepRow=function(val=''){
+  const el=document.createElement('div'); el.className='step-edit-row';
+  el.innerHTML=`<textarea placeholder="ej. Calentar aceite en sartén...">${val}</textarea>
+    <button class="ingr-del" onclick="this.parentNode.remove()">✕</button>`;
+  document.getElementById('nr-step-list').appendChild(el);
+};
+
+window.saveReceta = async function(){
+  const nombre=document.getElementById('nr-nombre').value.trim();
+  if(!nombre){ toast('Escribe un nombre'); return; }
+  const tipo=document.getElementById('nr-tipo').value;
+  const tiempo=document.getElementById('nr-tiempo').value.trim();
+  const tags=[...document.querySelectorAll('#nr-tags .tag-pill.on')].map(el=>el.dataset.tag);
+  const ingredientes=[...document.querySelectorAll('#nr-ingr-list input')].map(i=>i.value.trim()).filter(Boolean);
+  const pasos=[...document.querySelectorAll('#nr-step-list textarea')].map(t=>t.value.trim()).filter(Boolean);
+  const data={nombre,tipo,tiempo,tags,ingredientes,pasos};
+  if(window._editingRecetaId){
+    await updateDoc(doc(db,'recetas',window._editingRecetaId),data);
+    toast('Plato actualizado ✓');
+  } else {
+    await addDoc(colRecetas,data);
+    toast('Plato añadido ✓');
+  }
+  document.getElementById('ov-add-receta').classList.remove('open');
+};
+
+// ══════════════════════════════════
+// MENU SEMANAL
+// ══════════════════════════════════
+let menuFilter = null;
+const DIAS = ['Lunes','Martes','Miércoles','Jueves','Viernes'];
+
+onSnapshot(colMenu, snap => {
+  if(!snap.empty) window._menu = snap.docs[0].data();
+  renderMenuView();
+});
+
+function renderMenuChips(){
+  const c=document.getElementById('menu-chips');
+  if(!c) return;
+  c.innerHTML=`<div class="chip${!menuFilter?' active':''}" onclick="setMenuFilter(null)">Todos</div>`
+    +ALL_TAGS.map(t=>`<div class="chip${menuFilter===t?' active':''}" onclick="setMenuFilter('${t}')">${t}</div>`).join('');
+}
+window.setMenuFilter=function(t){menuFilter=t;renderMenuChips();renderMenuView();}
+
+window.generarMenu = async function(){
+  const tuppers=window._recetas.filter(r=>r.tipo==='tupper');
+  const cenas=window._recetas.filter(r=>r.tipo==='cena');
+  if(tuppers.length<3||cenas.length<5){ toast('Añade más recetas primero'); return; }
+  const shuffle=arr=>[...arr].sort(()=>Math.random()-0.5);
+  const sTuppers=shuffle(tuppers);
+  // 2 repetidos + 1 único → [0,1,0,1,2]
+  const tSel=[sTuppers[0],sTuppers[1],sTuppers[0],sTuppers[1],sTuppers[2]];
+  const sCenas=shuffle(cenas).slice(0,5);
+  const dias=DIAS.map((d,i)=>({dia:d,tupperId:tSel[i].id,cenaId:sCenas[i].id}));
+  const menuData={dias,generado:Date.now()};
+  const snap=await getDocs(colMenu);
+  if(snap.empty) await addDoc(colMenu,menuData);
+  else await updateDoc(doc(db,'menu',snap.docs[0].id),menuData);
+  window._menu=menuData;
+  renderMenuView();
+  toast('Menú generado 🎲');
+};
+
+function renderMenuView(){
+  renderMenuChips();
+  const m=window._menu;
+  const sub=document.getElementById('menu-sub');
+  if(m&&m.generado){ const d=new Date(m.generado); sub.textContent=`Generado el ${d.toLocaleDateString('es-ES',{weekday:'long',day:'numeric',month:'long'})}`; }
+  const cont=document.getElementById('menu-week');
+  if(!m||!m.dias){ cont.innerHTML=`<div class="empty-state"><div class="empty-icon">🥘</div><div class="empty-text">Pulsa "Generar menú" para crear el menú de la semana</div></div>`; return; }
+  cont.innerHTML=m.dias.map((d,di)=>{
+    const tupper=window._recetas.find(r=>r.id===d.tupperId);
+    const cena=window._recetas.find(r=>r.id===d.cenaId);
+    const showT=!menuFilter||(tupper&&tupper.tags&&tupper.tags.includes(menuFilter));
+    const showC=!menuFilter||(cena&&cena.tags&&cena.tags.includes(menuFilter));
+    if(!showT&&!showC) return '';
+    return `<div class="menu-day">
+      <div class="menu-day-hdr"><span class="menu-day-name">${d.dia}</span></div>
+      ${showT&&tupper?mealRow(tupper,'🥡',di,'tupperId'):''}
+      ${showC&&cena?mealRow(cena,'🌙',di,'cenaId'):''}
+    </div>`;
+  }).filter(Boolean).join('');
+}
+function mealRow(r,icon,di,field){
+  return `<div class="meal-row" onclick="openReceta('${r.id}')">
+    <span class="meal-type">${icon}</span>
+    <div class="meal-info">
+      <div class="meal-name">${r.nombre}</div>
+      <div class="meal-tags">${(r.tags||[]).map(t=>tagHTML(t)).join('')}</div>
+    </div>
+    <button class="swap-btn" onclick="event.stopPropagation();openSelect(${di},'${field}')">⇄</button>
+  </div>`;
+}
+
+window.menuACompra = async function(){
+  if(!window._menu||!window._menu.dias){ toast('Genera el menú primero'); return; }
+  let n=0;
+  for(const d of window._menu.dias){
+    for(const fid of ['tupperId','cenaId']){
+      const r=window._recetas.find(x=>x.id===d[fid]);
+      if(!r) continue;
+      for(const ing of (r.ingredientes||[])){
+        if(!window._compra.find(c=>c.name.toLowerCase()===ing.toLowerCase())){
+          await addDoc(colCompra,{name:ing,done:false,ts:Date.now()}); n++;
+        }
+      }
+    }
+  }
+  toast(`${n} productos añadidos a la compra 🛒`);
+};
+
+// Seleccionar receta
+let _selDia=null,_selField=null,_selFilter=null;
+window.openSelect=function(di,field){
+  _selDia=di;_selField=field;_selFilter=null;
+  renderSelModal();
+  document.getElementById('ov-select').classList.add('open');
+};
+function renderSelModal(){
+  const tipo=_selField==='tupperId'?'tupper':'cena';
+  const chips=document.getElementById('sel-chips');
+  chips.innerHTML=`<div class="chip${!_selFilter?' active':''}" onclick="setSelFilter(null)">Todos</div>`
+    +ALL_TAGS.map(t=>`<div class="chip${_selFilter===t?' active':''}" onclick="setSelFilter('${t}')">${t}</div>`).join('');
+  let recs=window._recetas.filter(r=>r.tipo===tipo);
+  if(_selFilter) recs=recs.filter(r=>r.tags&&r.tags.includes(_selFilter));
+  document.getElementById('sel-list').innerHTML=recs.map(r=>`
+    <div class="receta-card" onclick="selectReceta('${r.id}')" style="margin-bottom:8px">
+      <div class="receta-card-name">${r.nombre}</div>
+      <div class="receta-card-tags">${(r.tags||[]).map(t=>tagHTML(t)).join('')}</div>
+    </div>`).join('');
+}
+window.setSelFilter=function(t){_selFilter=t;renderSelModal();}
+window.selectReceta=async function(id){
+  if(!window._menu) return;
+  window._menu.dias[_selDia][_selField]=id;
+  const snap=await getDocs(colMenu);
+  if(!snap.empty) await updateDoc(doc(db,'menu',snap.docs[0].id),{dias:window._menu.dias});
+  document.getElementById('ov-select').classList.remove('open');
+  renderMenuView();
+};
+
+// ══════════════════════════════════
+// TAREAS
+// ══════════════════════════════════
+let tareaZonaFilter = null;
+
+onSnapshot(colTareas, snap => {
+  window._tareas = snap.docs.map(d=>({id:d.id,...d.data()}));
+  renderTareas();
+});
+
+function diasDesde(f){ if(!f) return 9999; return Math.floor((Date.now()-new Date(f))/(864e5)); }
+function vence(t){ return diasDesde(t.ultima)>=t.freq; }
+function atraso(t){ return Math.max(0,diasDesde(t.ultima)-t.freq); }
+function proxDias(t){ return Math.max(0,t.freq-diasDesde(t.ultima)); }
+
+window.reasignar = async function(){
+  for(const t of window._tareas){
+    if(vence(t)&&!t.hoyDone){
+      const a=Math.random()<0.5?'Hugo':'Edurne';
+      await updateDoc(doc(db,'tareas',t.id),{asignado:a});
+    }
+  }
+  toast('Tareas reasignadas 🎲');
+};
+
+const ZONAS=['General','Baño','Cocina','Dormitorio','Electronica'];
+function renderTareas(){
+  // chips zona
+  const chips=document.getElementById('tareas-chips');
+  chips.innerHTML=`<div class="chip${!tareaZonaFilter?' active':''}" onclick="setZonaFilter(null)">Todas</div>`
+    +ZONAS.map(z=>`<div class="chip${tareaZonaFilter===z?' active':''}" onclick="setZonaFilter('${z}')">${z}</div>`).join('');
+
+  let tareas=window._tareas;
+  if(tareaZonaFilter) tareas=tareas.filter(t=>t.zona===tareaZonaFilter);
+
+  const pendientes=tareas.filter(t=>vence(t)&&!t.hoyDone);
+  const hechas=tareas.filter(t=>t.hoyDone);
+  const proximas=tareas.filter(t=>!vence(t)&&!t.hoyDone);
+
+  const sub=document.getElementById('tareas-sub');
+  sub.textContent=pendientes.length?`${pendientes.length} pendiente${pendientes.length!==1?'s':''}`:'Todo al día ✓';
+
+  const navIcon=document.getElementById('nav-tareas-icon');
+  const total=window._tareas.filter(t=>vence(t)&&!t.hoyDone).length;
+  navIcon.innerHTML=total>0?`🧹<span class="badge">${total}</span>`:'🧹';
+
+  let html='';
+  if(pendientes.length){
+    html+=`<div class="section-label">Para hoy (${pendientes.length})</div>`;
+    pendientes.forEach(t=>html+=tareaHTML(t));
+  }
+  if(proximas.length){
+    html+=`<div class="section-label" style="margin-top:8px">Próximas</div>`;
+    proximas.forEach(t=>html+=tareaHTML(t));
+  }
+  if(hechas.length){
+    html+=`<div class="section-label" style="margin-top:8px">Hechas hoy ✓</div>`;
+    hechas.forEach(t=>html+=tareaHTML(t));
+  }
+  document.getElementById('tareas-list').innerHTML=html;
+}
+window.setZonaFilter=function(z){tareaZonaFilter=z;renderTareas();}
+
+function tareaHTML(t){
+  const ini=t.asignado?t.asignado.substring(0,2).toUpperCase():'?';
+  const cls=t.asignado==='Hugo'?'av-hugo':t.asignado==='Edurne'?'av-edurne':'av-none';
+  const atras=atraso(t);
+  let meta='';
+  if(t.hoyDone) meta='Hecha hoy ✓';
+  else if(!t.ultima) meta=`Cada ${t.freq} días · Sin hacer`;
+  else if(atras>0) meta=`${atras} día${atras>1?'s':''} de retraso`;
+  else meta=`En ${proxDias(t)} día${proxDias(t)!==1?'s':''}`;
+  const warn=atras>0&&!t.hoyDone;
+  return `<div class="tarea-card${vence(t)&&!t.hoyDone?' vence':''}${t.hoyDone?' hecha':''}" onclick="openTarea('${t.id}')">
+    <div class="avatar ${cls}">${ini}</div>
+    <div class="tarea-body">
+      <div class="tarea-zona">${t.zona||''}</div>
+      <div class="tarea-name">${t.nombre}</div>
+      <div class="tarea-meta${warn?' warn':''}">${meta}</div>
+    </div>
+    <div class="tarea-chk" onclick="event.stopPropagation();toggleTarea('${t.id}')">✓</div>
+  </div>`;
+}
+
+window.openTarea = function(id){
+  const t=window._tareas.find(x=>x.id===id); if(!t) return;
+  const atras=atraso(t);
+  const ini=t.asignado?t.asignado.substring(0,2).toUpperCase():'?';
+  const cls=t.asignado==='Hugo'?'av-hugo':t.asignado==='Edurne'?'av-edurne':'av-none';
+  document.getElementById('tarea-detail').innerHTML=`
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
+      <div class="avatar ${cls}" style="width:40px;height:40px;font-size:14px">${ini}</div>
+      <div>
+        <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em">${t.zona||''}</div>
+        <div class="modal-title" style="margin:2px 0 0">${t.nombre}</div>
+      </div>
+    </div>
+    <div style="font-size:13px;color:var(--text2);margin-bottom:4px">Cada <strong>${t.freq} días</strong> · Asignada a <strong>${t.asignado||'nadie'}</strong></div>
+    ${atras>0&&!t.hoyDone?`<div style="font-size:13px;color:var(--warn);font-weight:500;margin-bottom:8px">⚠️ ${atras} día${atras>1?'s':''} de retraso</div>`:''}
+    ${t.notas?`<div class="notas-box">📝 ${t.notas}</div>`:''}
+    <button class="btn-primary" style="margin-top:16px" onclick="toggleTarea('${t.id}');document.getElementById('ov-tarea').classList.remove('open')">
+      ${t.hoyDone?'Marcar como pendiente':'✓ Marcar como hecha'}
+    </button>
+    <button class="btn-secondary" onclick="cambiarAsignado('${t.id}')">🎲 Cambiar asignado</button>
+    <button class="btn-secondary" style="color:#c0392b;border-color:#c0392b;margin-top:4px" onclick="delTarea('${t.id}')">🗑 Eliminar tarea</button>
+  `;
+  document.getElementById('ov-tarea').classList.add('open');
+};
+
+window.toggleTarea = async function(id){
+  const t=window._tareas.find(x=>x.id===id); if(!t) return;
+  if(t.hoyDone){ await updateDoc(doc(db,'tareas',id),{hoyDone:false,ultima:null}); }
+  else { await updateDoc(doc(db,'tareas',id),{hoyDone:true,ultima:new Date().toISOString()}); }
+};
+window.cambiarAsignado = async function(id){
+  const t=window._tareas.find(x=>x.id===id); if(!t) return;
+  const nuevo=t.asignado==='Hugo'?'Edurne':'Hugo';
+  await updateDoc(doc(db,'tareas',id),{asignado:nuevo});
+  document.getElementById('ov-tarea').classList.remove('open');
+  toast(`Asignada a ${nuevo}`);
+};
+window.delTarea = async function(id){
+  if(!confirm('¿Eliminar esta tarea?')) return;
+  await deleteDoc(doc(db,'tareas',id));
+  document.getElementById('ov-tarea').classList.remove('open');
+  toast('Tarea eliminada');
+};
+
+// ADD TAREA
+window.openAddTarea = function(){
+  document.getElementById('nt-nombre').value='';
+  document.getElementById('nt-notas').value='';
+  document.getElementById('nt-freq-sel').value='7';
+  document.getElementById('nt-freq-custom').style.display='none';
+  document.getElementById('ov-add-tarea').classList.add('open');
+};
+window.toggleCustomFreq = function(){
+  const sel=document.getElementById('nt-freq-sel');
+  document.getElementById('nt-freq-custom').style.display=sel.value==='custom'?'block':'none';
+};
+window.saveTarea = async function(){
+  const nombre=document.getElementById('nt-nombre').value.trim();
+  if(!nombre){ toast('Escribe un nombre'); return; }
+  const zona=document.getElementById('nt-zona').value;
+  const notas=document.getElementById('nt-notas').value.trim();
+  const freqSel=document.getElementById('nt-freq-sel').value;
+  const freq=freqSel==='custom'?parseInt(document.getElementById('nt-freq-custom').value)||7:parseInt(freqSel);
+  await addDoc(colTareas,{nombre,zona,freq,notas,ultima:null,asignado:Math.random()<0.5?'Hugo':'Edurne',hoyDone:false});
+  document.getElementById('ov-add-tarea').classList.remove('open');
+  toast('Tarea añadida ✓');
+};
+
+// ══════════════════════════════════
+// NAV + TABS
+// ══════════════════════════════════
+window.nav = function(s,btn){
+  document.querySelectorAll('.screen').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(x=>x.classList.remove('active'));
+  document.getElementById('s-'+s).classList.add('active');
+  btn.classList.add('active');
+};
+window.setMenuTab = function(t){
+  document.getElementById('tab-semana').classList.toggle('active',t==='semana');
+  document.getElementById('tab-recetas').classList.toggle('active',t==='recetas');
+  document.getElementById('view-semana').style.display=t==='semana'?'block':'none';
+  document.getElementById('view-recetas').style.display=t==='recetas'?'block':'none';
+  if(t==='recetas') renderRecetas();
+};
+
+// URL param para Siri
+(function(){
+  const p=new URLSearchParams(window.location.search);
+  const item=p.get('item')||p.get('add');
+  if(item) setTimeout(()=>window.addCompra(item),1500);
+})();
+</script>
+</body>
+</html>
