@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Casa">
+<title>Casa 🏠</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #F7F5F0;
+    --surface: #FFFFFF;
+    --surface2: #F0EDE6;
+    --text: #1A1916;
+    --text2: #6B6860;
+    --text3: #9E9C96;
+    --accent: #2D5A3D;
+    --accent-light: #E8F0EA;
+    --accent2: #8B4513;
+    --accent2-light: #F5EDE6;
+    --warn: #C4610A;
+    --warn-light: #FEF3E8;
+    --border: rgba(0,0,0,0.08);
+    --border2: rgba(0,0,0,0.12);
+    --radius: 16px;
+    --radius-sm: 10px;
+    --shadow: 0 2px 12px rgba(0,0,0,0.06);
+    --shadow-lg: 0 8px 32px rgba(0,0,0,0.1);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    max-width: 430px;
+    margin: 0 auto;
+    position: relative;
+  }
+  /* NAV */
+  .nav {
+    position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+    width: 100%; max-width: 430px;
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    display: flex; align-items: center;
+    padding: 8px 0 max(8px, env(safe-area-inset-bottom));
+    z-index: 100;
+  }
+  .nav-btn {
+    flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px;
+    padding: 6px 0; cursor: pointer; border: none; background: none;
+    font-family: inherit; color: var(--text3); font-size: 10px; font-weight: 500;
+    letter-spacing: 0.02em; transition: color 0.2s;
+  }
+  .nav-btn.active { color: var(--accent); }
+  .nav-icon { font-size: 22px; line-height: 1; }
+  /* SCREENS */
+  .screen { display: none; padding: 0 0 90px; min-height: 100vh; }
+  .screen.active { display: block; }
+  /* HEADER */
+  .header {
+    padding: 56px 20px 20px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    position: sticky; top: 0; z-index: 50;
+  }
+  .header-row { display: flex; align-items: flex-end; justify-content: space-between; }
+  .header-title { font-family: 'DM Serif Display', serif; font-size: 28px; color: var(--text); line-height: 1; }
+  .header-sub { font-size: 13px; color: var(--text3); margin-top: 4px; }
+  .header-action {
+    background: var(--accent); color: #fff; border: none; border-radius: var(--radius-sm);
+    padding: 8px 14px; font-family: inherit; font-size: 13px; font-weight: 500;
+    cursor: pointer; display: flex; align-items: center; gap: 6px; white-space: nowrap;
+  }
+  .header-action:active { opacity: 0.85; transform: scale(0.97); }
+  /* COMPRA */
+  .compra-input-row {
+    padding: 16px 20px; display: flex; gap: 10px;
+    background: var(--surface); border-bottom: 1px solid var(--border);
+  }
+  .compra-input {
+    flex: 1; padding: 10px 14px; border: 1.5px solid var(--border2);
+    border-radius: var(--radius-sm); font-family: inherit; font-size: 15px;
+    background: var(--bg); color: var(--text); outline: none;
+  }
+  .compra-input:focus { border-color: var(--accent); }
+  .btn-add {
+    background: var(--accent); color: #fff; border: none; border-radius: var(--radius-sm);
+    padding: 10px 16px; font-family: inherit; font-size: 15px; cursor: pointer;
+    font-weight: 500;
+  }
+  .compra-sections { padding: 16px 20px; }
+  .section-label {
+    font-size: 11px; font-weight: 600; letter-spacing: 0.08em;
+    color: var(--text3); text-transform: uppercase; margin-bottom: 10px; margin-top: 16px;
+  }
+  .compra-item {
+    display: flex; align-items: center; gap: 12px;
+    background: var(--surface); border-radius: var(--radius-sm);
+    padding: 12px 14px; margin-bottom: 8px;
+    border: 1px solid var(--border); cursor: pointer;
+    transition: opacity 0.2s;
+  }
+  .compra-item.done { opacity: 0.45; }
+  .compra-check {
+    width: 22px; height: 22px; border-radius: 50%;
+    border: 2px solid var(--border2); display: flex; align-items: center;
+    justify-content: center; flex-shrink: 0; transition: all 0.2s;
+    background: transparent;
+  }
+  .compra-item.done .compra-check { background: var(--accent); border-color: var(--accent); }
+  .compra-check-icon { color: #fff; font-size: 12px; display: none; }
+  .compra-item.done .compra-check-icon { display: block; }
+  .compra-name { flex: 1; font-size: 15px; }
+  .compra-item.done .compra-name { text-decoration: line-through; color: var(--text3); }
+  .compra-del {
+    color: var(--text3); background: none; border: none; font-size: 18px;
+    cursor: pointer; padding: 4px; line-height: 1;
+  }
+  .compra-del:active { color: #e74c3c; }
+  .empty-state {
+    text-align: center; padding: 40px 20px; color: var(--text3);
+  }
+  .empty-icon { font-size: 40px; margin-bottom: 12px; }
+  .empty-text { font-size: 15px; }
+  /* CHIPS */
+  .chips { display: flex; gap: 8px; flex-wrap: wrap; padding: 12px 20px; }
+  .chip {
+    padding: 6px 14px; border-radius: 20px; font-size: 13px; font-weight: 500;
+    border: 1.5px solid var(--border2); cursor: pointer; transition: all 0.2s;
+    background: var(--surface); color: var(--text2);
+  }
+  .chip.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+  /* MENU */
+  .menu-week { padding: 16px 20px; }
+  .menu-day {
+    background: var(--surface); border-radius: var(--radius);
+    border: 1px solid var(--border); margin-bottom: 12px; overflow: hidden;
+  }
+  .menu-day-header {
+    padding: 12px 16px; display: flex; align-items: center; justify-content: space-between;
+    border-bottom: 1px solid var(--border); cursor: pointer;
+    background: var(--surface2);
+  }
+  .menu-day-name { font-weight: 600; font-size: 14px; }
+  .menu-day-body { padding: 0; }
+  .menu-meal {
+    padding: 12px 16px; display: flex; gap: 12px; align-items: flex-start;
+    border-bottom: 1px solid var(--border); cursor: pointer;
+  }
+  .menu-meal:last-child { border-bottom: none; }
+  .menu-meal-type {
+    font-size: 10px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase;
+    color: var(--text3); min-width: 48px; padding-top: 2px;
+  }
+  .menu-meal-name { font-size: 14px; font-weight: 500; flex: 1; }
+  .menu-meal-tags { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 4px; }
+  .tag {
+    font-size: 10px; padding: 2px 8px; border-radius: 10px; font-weight: 500;
+  }
+  .tag-fit { background: var(--accent-light); color: var(--accent); }
+  .tag-indulge { background: var(--accent2-light); color: var(--accent2); }
+  .tag-postre { background: #FEF0F5; color: #A0336A; }
+  .tag-rapido { background: #F0F4FE; color: #2D5FA0; }
+  .tag-vegano { background: #F0F7E8; color: #3B6D11; }
+  .menu-change-btn {
+    font-size: 18px; color: var(--text3); background: none; border: none;
+    cursor: pointer; padding: 0; line-height: 1; flex-shrink: 0;
+  }
+  /* RECIPE MODAL */
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 200;
+    display: none; align-items: flex-end; justify-content: center;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--surface); border-radius: 20px 20px 0 0;
+    width: 100%; max-width: 430px; max-height: 85vh; overflow-y: auto;
+    padding: 24px 20px 40px;
+  }
+  .modal-handle {
+    width: 36px; height: 4px; background: var(--border2); border-radius: 2px;
+    margin: 0 auto 20px;
+  }
+  .modal-title { font-family: 'DM Serif Display', serif; font-size: 22px; margin-bottom: 6px; }
+  .modal-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 16px; }
+  .modal-section { font-size: 12px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text3); margin: 16px 0 10px; }
+  .ingr-list { list-style: none; }
+  .ingr-list li { padding: 6px 0; border-bottom: 1px solid var(--border); font-size: 14px; display: flex; gap: 8px; }
+  .ingr-list li::before { content: '·'; color: var(--accent); font-weight: bold; }
+  .step-list { counter-reset: steps; list-style: none; }
+  .step-list li { counter-increment: steps; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 14px; line-height: 1.6; display: flex; gap: 12px; }
+  .step-list li::before { content: counter(steps); min-width: 24px; height: 24px; border-radius: 50%; background: var(--accent); color: #fff; font-size: 12px; font-weight: 600; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+  .btn-compra {
+    width: 100%; margin-top: 20px; padding: 14px; background: var(--accent);
+    color: #fff; border: none; border-radius: var(--radius-sm); font-family: inherit;
+    font-size: 15px; font-weight: 600; cursor: pointer; display: flex; align-items: center;
+    justify-content: center; gap: 8px;
+  }
+  .btn-outline {
+    width: 100%; margin-top: 10px; padding: 12px; background: transparent;
+    color: var(--text2); border: 1.5px solid var(--border2); border-radius: var(--radius-sm);
+    font-family: inherit; font-size: 14px; cursor: pointer;
+  }
+  /* RECETAS selector */
+  .recetas-list { padding: 12px 20px; }
+  .receta-card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm);
+    padding: 12px 14px; margin-bottom: 8px; cursor: pointer; display: flex;
+    align-items: center; justify-content: space-between;
+  }
+  .receta-card:active { background: var(--surface2); }
+  /* TAREAS */
+  .tareas-list { padding: 16px 20px; }
+  .tarea-card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 14px 16px; margin-bottom: 10px; display: flex; align-items: flex-start; gap: 14px;
+  }
+  .tarea-card.pending { border-left: 3px solid var(--warn); }
+  .tarea-card.done-today { border-left: 3px solid var(--accent); opacity: 0.6; }
+  .tarea-assignee {
+    width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center;
+    justify-content: center; font-size: 12px; font-weight: 600; flex-shrink: 0;
+  }
+  .hugo { background: #E8F0FF; color: #1A4FA0; }
+  .edurne { background: #FFE8F5; color: #A01A5F; }
+  .tarea-body { flex: 1; }
+  .tarea-name { font-size: 15px; font-weight: 500; margin-bottom: 3px; }
+  .tarea-meta { font-size: 12px; color: var(--text3); }
+  .tarea-meta.warn { color: var(--warn); font-weight: 500; }
+  .tarea-check {
+    width: 26px; height: 26px; border-radius: 50%; border: 2px solid var(--border2);
+    display: flex; align-items: center; justify-content: center; cursor: pointer;
+    flex-shrink: 0; transition: all 0.2s; background: transparent; margin-top: 2px;
+  }
+  .tarea-card.done-today .tarea-check { background: var(--accent); border-color: var(--accent); }
+  .tarea-done-icon { color: #fff; font-size: 13px; display: none; }
+  .tarea-card.done-today .tarea-done-icon { display: block; }
+  /* SIRI BANNER */
+  .siri-banner {
+    background: var(--accent-light); border: 1.5px solid var(--accent);
+    border-radius: var(--radius-sm); padding: 12px 16px; margin: 16px 20px 0;
+    display: flex; gap: 12px; align-items: flex-start;
+  }
+  .siri-icon { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
+  .siri-text { font-size: 13px; color: var(--accent); line-height: 1.5; }
+  .siri-url {
+    font-family: monospace; font-size: 11px; background: rgba(45,90,61,0.1);
+    padding: 2px 6px; border-radius: 4px; word-break: break-all; display: block;
+    margin-top: 4px;
+  }
+  /* ADD MODAL */
+  .add-input {
+    width: 100%; padding: 10px 14px; border: 1.5px solid var(--border2);
+    border-radius: var(--radius-sm); font-family: inherit; font-size: 15px;
+    background: var(--bg); color: var(--text); outline: none; margin-bottom: 12px;
+  }
+  .add-input:focus { border-color: var(--accent); }
+  select.add-input { appearance: none; }
+  .label-form { font-size: 12px; color: var(--text2); font-weight: 500; margin-bottom: 6px; display: block; }
+  /* GENERATE MENU BTN */
+  .generate-row { padding: 0 20px 0; display: flex; gap: 10px; flex-wrap: wrap; }
+  .btn-generate {
+    flex: 1; padding: 12px; background: var(--accent); color: #fff; border: none;
+    border-radius: var(--radius-sm); font-family: inherit; font-size: 13px; font-weight: 600;
+    cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;
+  }
+  .btn-lista {
+    flex: 1; padding: 12px; background: var(--surface); color: var(--accent);
+    border: 1.5px solid var(--accent); border-radius: var(--radius-sm); font-family: inherit;
+    font-size: 13px; font-weight: 600; cursor: pointer; display: flex;
+    align-items: center; justify-content: center; gap: 6px;
+  }
+  .toast {
+    position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%);
+    background: var(--text); color: #fff; padding: 10px 20px; border-radius: 20px;
+    font-size: 14px; z-index: 300; opacity: 0; transition: opacity 0.3s; pointer-events: none;
+    white-space: nowrap;
+  }
+  .toast.show { opacity: 1; }
+  .pill-row { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
+  .pill-sel {
+    padding: 5px 12px; border-radius: 14px; font-size: 12px; font-weight: 500;
+    border: 1.5px solid var(--border2); cursor: pointer; background: var(--surface);
+    color: var(--text2);
+  }
+  .pill-sel.on { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .counter-badge {
+    background: #e74c3c; color: #fff; font-size: 10px; font-weight: 700;
+    border-radius: 10px; padding: 1px 5px; margin-left: 4px;
+  }
+  .menu-col-header { font-size: 11px; font-weight: 600; color: var(--text3); letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 6px; }
+</style>
+</head>
+<body>
+
+<!-- SCREENS -->
+<div id="screen-compra" class="screen active">
+  <div class="header">
+    <div class="header-row">
+      <div>
+        <div class="header-title">La compra 🛒</div>
+        <div class="header-sub" id="compra-count">0 productos</div>
+      </div>
+      <button class="header-action" onclick="clearDone()">✓ Borrar hechos</button>
+    </div>
+  </div>
+  <div class="siri-banner">
+    <div class="siri-icon">🎙️</div>
+    <div class="siri-text">
+      <strong>Atajo de Siri:</strong> Di <em>"Oye Siri, añadir a la compra"</em> y añade cualquier producto.
+      <span class="siri-url">Instrucciones de configuración ↓ (ver abajo)</span>
+    </div>
+  </div>
+  <div class="compra-input-row">
+    <input class="compra-input" id="compra-input" placeholder="Añadir producto..." onkeydown="if(event.key==='Enter')addCompra()">
+    <button class="btn-add" onclick="addCompra()">+</button>
+  </div>
+  <div class="compra-sections" id="compra-list"></div>
+</div>
+
+<div id="screen-menu" class="screen">
+  <div class="header">
+    <div class="header-row">
+      <div>
+        <div class="header-title">Menú 🥘</div>
+        <div class="header-sub" id="semana-label">Semana actual</div>
+      </div>
+    </div>
+  </div>
+  <div style="height:12px"></div>
+  <div class="generate-row">
+    <button class="btn-generate" onclick="generarMenu()">🎲 Generar menú</button>
+    <button class="btn-lista" onclick="menuACompra()">🛒 → Lista</button>
+  </div>
+  <div class="chips" id="filter-chips"></div>
+  <div class="menu-week" id="menu-week"></div>
+</div>
+
+<div id="screen-tareas" class="screen">
+  <div class="header">
+    <div class="header-row">
+      <div>
+        <div class="header-title">Tareas 🧹</div>
+        <div class="header-sub" id="tareas-sub">Tareas del hogar</div>
+      </div>
+      <button class="header-action" onclick="reasignarTareas()">🎲 Reasignar</button>
+    </div>
+  </div>
+  <div class="tareas-list" id="tareas-list"></div>
+  <div style="padding:0 20px">
+    <button class="btn-outline" onclick="openAddTarea()">+ Añadir tarea</button>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav class="nav">
+  <button class="nav-btn active" onclick="showScreen('compra',this)">
+    <span class="nav-icon">🛒</span>Compra
+  </button>
+  <button class="nav-btn" onclick="showScreen('menu',this)">
+    <span class="nav-icon">🥘</span>Menú
+  </button>
+  <button class="nav-btn" onclick="showScreen('tareas',this)" id="nav-tareas">
+    <span class="nav-icon">🧹</span>Tareas
+  </button>
+</nav>
+
+<!-- MODAL RECETA -->
+<div class="modal-overlay" id="recipe-modal" onclick="closeRecipeIfOverlay(event)">
+  <div class="modal" id="recipe-modal-content">
+    <div class="modal-handle"></div>
+    <div id="recipe-modal-body"></div>
+  </div>
+</div>
+
+<!-- MODAL SELECCION RECETA -->
+<div class="modal-overlay" id="select-modal" onclick="if(event.target===this)this.classList.remove('open')">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div style="font-family:'DM Serif Display',serif;font-size:20px;margin-bottom:12px">Cambiar plato</div>
+    <div id="select-filter-chips" class="chips" style="padding:0;margin-bottom:12px;flex-wrap:wrap"></div>
+    <div id="select-list" class="recetas-list" style="padding:0;max-height:50vh;overflow-y:auto"></div>
+    <button class="btn-outline" onclick="document.getElementById('select-modal').classList.remove('open')">Cancelar</button>
+  </div>
+</div>
+
+<!-- MODAL ADD TAREA -->
+<div class="modal-overlay" id="tarea-modal" onclick="if(event.target===this)this.classList.remove('open')">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div style="font-family:'DM Serif Display',serif;font-size:20px;margin-bottom:16px">Nueva tarea</div>
+    <label class="label-form">Nombre de la tarea</label>
+    <input class="add-input" id="new-tarea-name" placeholder="ej. Limpiar baño">
+    <label class="label-form">Cada cuántos días</label>
+    <input class="add-input" type="number" id="new-tarea-freq" value="7" min="1">
+    <button class="btn-compra" onclick="saveTarea()">Guardar tarea</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════════
+// DATOS: RECETAS
+// ═══════════════════════════════════════════
+const RECETAS = [
+  // TUPPERS
+  {id:1,nombre:"Pollo al limón con quinoa",tipo:"tupper",tags:["fit","proteína"],tiempo:"35 min",ingredientes:["2 pechugas de pollo","1 taza de quinoa","1 limón","Ajo","Aceite de oliva","Sal, pimienta","Perejil"],pasos:["Cocer la quinoa en agua salada durante 15 min.","Marinar el pollo con zumo de limón, ajo y aceite.","Cocinar el pollo a la plancha 6-7 min por lado.","Servir sobre la quinoa con perejil fresco."]},
+  {id:2,nombre:"Arroz con verduras al wok",tipo:"tupper",tags:["fit","vegano"],tiempo:"25 min",ingredientes:["2 tazas arroz integral","Pimiento rojo y verde","Cebolla","Zanahoria","Salsa de soja","Jengibre","Aceite de sésamo"],pasos:["Cocer el arroz integral 35 min.","Saltear las verduras en wok a fuego alto.","Añadir salsa de soja y jengibre.","Mezclar con el arroz y servir."]},
+  {id:3,nombre:"Pasta con atún y tomate",tipo:"tupper",tags:["rápido"],tiempo:"20 min",ingredientes:["300g pasta","2 latas de atún","1 bote de tomate triturado","Ajo","Albahaca","Sal, aceite"],pasos:["Cocer la pasta al dente.","Sofreír el ajo y añadir el tomate.","Incorporar el atún y cocinar 5 min.","Mezclar con la pasta y añadir albahaca."]},
+  {id:4,nombre:"Lentejas con verduras",tipo:"tupper",tags:["fit","vegano","proteína"],tiempo:"40 min",ingredientes:["400g lentejas","1 cebolla","2 zanahorias","1 pimiento rojo","2 dientes de ajo","Comino, pimentón","Tomate triturado","Sal, aceite"],pasos:["Sofreír cebolla, ajo y pimiento.","Añadir las lentejas y cubrir con agua.","Incorporar las especias y el tomate.","Cocer 35-40 min hasta que estén tiernas."]},
+  {id:5,nombre:"Ensalada de garbanzos",tipo:"tupper",tags:["fit","vegano","proteína"],tiempo:"10 min",ingredientes:["1 bote de garbanzos","Tomate cherry","Pepino","Cebolla roja","Feta","Aceitunas","Vinagreta de limón"],pasos:["Escurrir y aclarar los garbanzos.","Cortar las verduras en trozos.","Mezclar todo en un bol.","Aliñar con vinagreta de limón y orégano."]},
+  {id:6,nombre:"Pollo al curry con arroz basmati",tipo:"tupper",tags:["fit"],tiempo:"35 min",ingredientes:["2 pechugas de pollo","1 taza arroz basmati","Leche de coco","Curry en polvo","Cebolla","Ajo","Jengibre","Tomate"],pasos:["Cocinar cebolla, ajo y jengibre.","Añadir pollo troceado y dorar.","Incorporar curry, tomate y leche de coco.","Cocinar 20 min. Servir con arroz basmati."]},
+  {id:7,nombre:"Macarrones con chorizo",tipo:"tupper",tags:["indulgente"],tiempo:"30 min",ingredientes:["300g macarrones","200g chorizo","Tomate triturado","Cebolla","Pimiento verde","Queso rallado","Sal, aceite"],pasos:["Cocer la pasta al dente.","Sofreír cebolla y pimiento, añadir chorizo.","Incorporar tomate y cocinar 10 min.","Mezclar con la pasta y gratinar con queso."]},
+  {id:8,nombre:"Arroz con pollo casero",tipo:"tupper",tags:["indulgente"],tiempo:"50 min",ingredientes:["500g contramuslos de pollo","2 tazas de arroz","Cebolla","Ajo","Pimiento","Caldo de pollo","Azafrán","Sal, aceite"],pasos:["Dorar el pollo con sal y pimienta.","Sofreír las verduras en el mismo aceite.","Añadir el arroz y el caldo.","Cocinar tapado 20 min hasta que el arroz esté hecho."]},
+  {id:9,nombre:"Salmón al horno con patatas",tipo:"tupper",tags:["fit","proteína"],tiempo:"35 min",ingredientes:["2 lomos de salmón","4 patatas medianas","Limón","Eneldo","Ajo en polvo","Aceite de oliva","Sal, pimienta"],pasos:["Precalentar horno a 200°C.","Cortar las patatas en gajos y hornear 20 min.","Añadir el salmón sazonado y hornear 15 min más.","Servir con rodajas de limón y eneldo."]},
+  {id:10,nombre:"Tortilla española",tipo:"tupper",tags:["rápido","indulgente"],tiempo:"25 min",ingredientes:["6 huevos","4 patatas","1 cebolla","Aceite de oliva","Sal"],pasos:["Pelar y cortar las patatas en láminas finas.","Freír las patatas con la cebolla a fuego lento.","Batir los huevos y mezclar con las patatas.","Cuajar la tortilla 4 min por cada lado."]},
+  {id:11,nombre:"Bowl de açaí y frutas",tipo:"tupper",tags:["fit","vegano","desayuno"],tiempo:"10 min",ingredientes:["2 paquetes açaí congelado","1 plátano","Fresas","Granola","Miel","Leche de almendra"],pasos:["Batir el açaí con el plátano y leche de almendra.","Verter en un bol.","Añadir las frutas y la granola por encima.","Decorar con un chorrito de miel."]},
+  {id:12,nombre:"Berenjenas rellenas de carne",tipo:"tupper",tags:["fit","proteína"],tiempo:"50 min",ingredientes:["2 berenjenas","300g carne picada","Tomate triturado","Cebolla","Ajo","Queso mozzarella","Orégano","Sal, aceite"],pasos:["Cortar las berenjenas por la mitad y hornear 20 min.","Sofreír cebolla y carne, añadir tomate.","Rellenar las berenjenas con el sofrito.","Cubrir con mozzarella y gratinar 10 min."]},
+  // CENAS
+  {id:13,nombre:"Ensalada César",tipo:"cena",tags:["fit","rápido"],tiempo:"15 min",ingredientes:["1 lechuga romana","Pollo a la plancha","Picatostes","Queso parmesano","Salsa César","Limón"],pasos:["Lavar y trocear la lechuga.","Cocinar el pollo a la plancha y laminar.","Mezclar con la salsa César.","Añadir parmesano rallado y picatostes."]},
+  {id:14,nombre:"Pisto manchego con huevos",tipo:"cena",tags:["fit","vegano"],tiempo:"30 min",ingredientes:["2 calabacines","1 berenjena","Pimiento rojo y verde","Cebolla","Tomate triturado","4 huevos","Aceite, sal"],pasos:["Cortar todas las verduras en dados.","Sofreír la cebolla y los pimientos.","Añadir calabacín, berenjena y tomate.","Cocer 20 min, hacer huevos poche encima."]},
+  {id:15,nombre:"Pizza casera margherita",tipo:"cena",tags:["indulgente"],tiempo:"60 min",ingredientes:["Masa de pizza","Tomate triturado","Mozzarella fresca","Albahaca","Aceite de oliva","Sal"],pasos:["Estirar la masa y precalentar horno a 220°C.","Añadir tomate, sal y aceite.","Incorporar la mozzarella.","Hornear 12-15 min. Decorar con albahaca."]},
+  {id:16,nombre:"Crema de calabaza",tipo:"cena",tags:["fit","vegano"],tiempo:"35 min",ingredientes:["1kg calabaza","1 cebolla","1 patata","Caldo de verduras","Jengibre","Nata de coco","Sal, pimienta"],pasos:["Trocear la calabaza, cebolla y patata.","Cocer todo con el caldo 25 min.","Añadir jengibre y triturar bien.","Servir con un toque de nata de coco."]},
+  {id:17,nombre:"Tacos de pollo",tipo:"cena",tags:["rápido","indulgente"],tiempo:"25 min",ingredientes:["Tortillas de maíz","2 pechugas","Aguacate","Tomate","Cebolla morada","Cilantro","Lima","Crema agria"],pasos:["Salpimentar y cocinar el pollo a la plancha.","Cortar el pollo en tiras.","Preparar el guacamole con aguacate y lima.","Montar los tacos con todos los ingredientes."]},
+  {id:18,nombre:"Revuelto de setas y gambas",tipo:"cena",tags:["fit","rápido","proteína"],tiempo:"15 min",ingredientes:["300g setas variadas","200g gambas","4 huevos","Ajo","Perejil","Aceite de oliva","Sal, pimienta"],pasos:["Saltear el ajo y las setas.","Añadir las gambas y cocinar 2 min.","Batir los huevos y verter en la sartén.","Remover a fuego suave hasta cuajar."]},
+  {id:19,nombre:"Gazpacho con taquitos",tipo:"cena",tags:["fit","vegano"],tiempo:"15 min",ingredientes:["1kg tomates maduros","1 pepino","1 pimiento verde","1 diente de ajo","Pan","Vinagre","Aceite de oliva","Sal"],pasos:["Trocear todas las verduras.","Triturar junto con el pan, vinagre y aceite.","Colar y ajustar de sal y vinagre.","Servir frío con guarnición picada."]},
+  {id:20,nombre:"Tortitas americanas",tipo:"cena",tags:["indulgente","rápido"],tiempo:"20 min",ingredientes:["2 tazas de harina","2 huevos","1 taza de leche","2 cdas mantequilla","1 cda azúcar","Levadura","Arándanos","Sirope de arce"],pasos:["Mezclar harina, levadura y azúcar.","Añadir huevos, leche y mantequilla.","Cocinar en sartén antiadherente 2 min por lado.","Servir con arándanos y sirope."]},
+  {id:21,nombre:"Fideos con almejas",tipo:"cena",tags:["fit","proteína"],tiempo:"30 min",ingredientes:["300g fideos","500g almejas","Ajo","Vino blanco","Perejil","Fumet de pescado","Aceite, sal"],pasos:["Sofreír el ajo y añadir las almejas con vino.","Cuando abran, reservar.","Tostar los fideos y añadir el fumet.","Incorporar las almejas y cocinar hasta absorber."]},
+  {id:22,nombre:"Ensalada de pasta fría",tipo:"cena",tags:["rápido","fit"],tiempo:"20 min",ingredientes:["300g pasta","Tomate cherry","Mozzarella","Albahaca","Aceitunas","Rúcula","Vinagreta"],pasos:["Cocer la pasta y enfriar.","Cortar el tomate y la mozzarella.","Mezclar todos los ingredientes.","Aliñar con vinagreta y añadir albahaca."]},
+  // POSTRES
+  {id:23,nombre:"Mousse de chocolate negro",tipo:"postre",tags:["postre","indulgente"],tiempo:"20 min + nevera",ingredientes:["200g chocolate 70%","4 huevos","2 cdas azúcar","1 pizca sal","Nata para montar"],pasos:["Derretir el chocolate al baño maría.","Separar yemas y claras.","Montar las claras a punto de nieve.","Mezclar chocolate con yemas, incorporar claras y enfriar 2h."]},
+  {id:24,nombre:"Tiramisú exprés",tipo:"postre",tags:["postre","indulgente"],tiempo:"20 min + nevera",ingredientes:["250g mascarpone","3 huevos","100g azúcar","Bizcochos de soletilla","Café exprés","Cacao en polvo","Amaretto (opcional)"],pasos:["Batir yemas con azúcar hasta blanquear.","Mezclar con mascarpone.","Montar claras e incorporar.","Montar en capas con los bizcochos empapados. Enfriar 4h."]},
+  {id:25,nombre:"Helado de plátano",tipo:"postre",tags:["postre","fit","vegano"],tiempo:"5 min + congelador",ingredientes:["4 plátanos maduros congelados","Mantequilla de cacahuete","Leche de almendra","Cacao en polvo"],pasos:["Congelar los plátanos troceados mínimo 4h.","Batir en procesador hasta cremoso.","Añadir mantequilla de cacahuete y cacao.","Servir inmediatamente o congelar 1h más."]},
+  {id:26,nombre:"Tarta de queso al horno",tipo:"postre",tags:["postre","indulgente"],tiempo:"60 min",ingredientes:["500g queso crema","200ml nata","3 huevos","150g azúcar","1 cda harina","Vainilla"],pasos:["Precalentar horno a 200°C con aire.","Batir todos los ingredientes hasta homogéneo.","Verter en molde forrado con papel.","Hornear 25-30 min. Enfriar antes de servir."]},
+  {id:27,nombre:"Panna cotta de vainilla",tipo:"postre",tags:["postre","fit"],tiempo:"15 min + nevera",ingredientes:["500ml nata","80g azúcar","2 hojas gelatina","1 vaina vainilla","Frutos rojos para decorar"],pasos:["Hidratar la gelatina en agua fría.","Calentar la nata con azúcar y vainilla.","Añadir la gelatina y disolver.","Verter en moldes y refrigerar 4h."]},
+];
+
+const DIAS = ["Lunes","Martes","Miércoles","Jueves","Viernes"];
+
+// ═══════════════════════════════════════════
+// STORAGE
+// ═══════════════════════════════════════════
+function load(k,def){try{const v=localStorage.getItem(k);return v?JSON.parse(v):def;}catch{return def;}}
+function save(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch{}}
+
+let compra = load('compra_items',[]);
+let menuSemanal = load('menu_semanal',null);
+let tareas = load('tareas_list',[
+  {id:1,nombre:"Pasar el aspirador",freq:7,ultima:null,asignado:null,hoyDone:false},
+  {id:2,nombre:"Limpiar baños",freq:7,ultima:null,asignado:null,hoyDone:false},
+  {id:3,nombre:"Limpiar cocina",freq:3,ultima:null,asignado:null,hoyDone:false},
+  {id:4,nombre:"Fregar suelos",freq:14,ultima:null,asignado:null,hoyDone:false},
+  {id:5,nombre:"Hacer la colada",freq:4,ultima:null,asignado:null,hoyDone:false},
+  {id:6,nombre:"Limpiar nevera",freq:30,ultima:null,asignado:null,hoyDone:false},
+  {id:7,nombre:"Cambiar sábanas",freq:14,ultima:null,asignado:null,hoyDone:false},
+  {id:8,nombre:"Sacar basura",freq:2,ultima:null,asignado:null,hoyDone:false},
+]);
+let tareaIdSeq = load('tarea_seq',9);
+let compraIdSeq = load('compra_seq',1);
+
+// ═══════════════════════════════════════════
+// NAV
+// ═══════════════════════════════════════════
+function showScreen(name,btn){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('screen-'+name).classList.add('active');
+  btn.classList.add('active');
+  if(name==='menu') renderMenu();
+  if(name==='tareas') renderTareas();
+  if(name==='compra') renderCompra();
+}
+
+// ═══════════════════════════════════════════
+// COMPRA
+// ═══════════════════════════════════════════
+function renderCompra(){
+  const list = document.getElementById('compra-list');
+  const pendientes = compra.filter(i=>!i.done);
+  const hechos = compra.filter(i=>i.done);
+  document.getElementById('compra-count').textContent = `${pendientes.length} pendiente${pendientes.length!==1?'s':''}`;
+  let html='';
+  if(pendientes.length===0&&hechos.length===0){
+    html=`<div class="empty-state"><div class="empty-icon">🛒</div><div class="empty-text">La lista está vacía.<br>¡A comprar!</div></div>`;
+  } else {
+    if(pendientes.length>0){
+      html+=`<div class="section-label">Pendiente (${pendientes.length})</div>`;
+      pendientes.forEach(i=>html+=itemHTML(i));
+    }
+    if(hechos.length>0){
+      html+=`<div class="section-label">En el carro (${hechos.length})</div>`;
+      hechos.forEach(i=>html+=itemHTML(i));
+    }
+  }
+  list.innerHTML=html;
+}
+function itemHTML(i){
+  return `<div class="compra-item${i.done?' done':''}" onclick="toggleCompra(${i.id})">
+    <div class="compra-check"><span class="compra-check-icon">✓</span></div>
+    <span class="compra-name">${i.name}</span>
+    <button class="compra-del" onclick="event.stopPropagation();delCompra(${i.id})">✕</button>
+  </div>`;
+}
+function addCompra(name){
+  const input = document.getElementById('compra-input');
+  const n = (name||input.value).trim();
+  if(!n) return;
+  compra.push({id:compraIdSeq++,name:n,done:false});
+  save('compra_items',compra); save('compra_seq',compraIdSeq);
+  if(!name){input.value=''; input.focus();}
+  renderCompra(); showToast('Añadido: '+n);
+}
+function toggleCompra(id){
+  const i=compra.find(x=>x.id===id); if(!i) return;
+  i.done=!i.done; save('compra_items',compra); renderCompra();
+}
+function delCompra(id){
+  compra=compra.filter(x=>x.id!==id); save('compra_items',compra); renderCompra();
+}
+function clearDone(){
+  compra=compra.filter(x=>!x.done); save('compra_items',compra); renderCompra();
+  showToast('Lista limpiada ✓');
+}
+
+// ═══════════════════════════════════════════
+// MENU SEMANAL
+// ═══════════════════════════════════════════
+let filterTag = null;
+function renderFilterChips(){
+  const tags=['fit','indulgente','postre','rápido','vegano','proteína'];
+  const c=document.getElementById('filter-chips');
+  c.innerHTML=`<div class="chip${!filterTag?' active':''}" onclick="setFilter(null)">Todos</div>`+
+    tags.map(t=>`<div class="chip${filterTag===t?' active':''}" onclick="setFilter('${t}')">${t}</div>`).join('');
+}
+function setFilter(t){ filterTag=t; renderFilterChips(); renderMenu(); }
+
+function generarMenu(){
+  const tuppers = RECETAS.filter(r=>r.tipo==='tupper');
+  const cenas = RECETAS.filter(r=>r.tipo==='cena');
+  const shuffle = arr => arr.sort(()=>Math.random()-0.5);
+  const pick = (arr,n) => shuffle([...arr]).slice(0,n);
+  menuSemanal = {
+    generado: new Date().toISOString(),
+    dias: DIAS.map((d,i)=>({
+      dia:d,
+      tupper: pick(tuppers,1)[0],
+      cena: pick(cenas,1)[0]
+    }))
+  };
+  save('menu_semanal',menuSemanal);
+  renderMenu(); showToast('Menú generado 🎲');
+}
+
+function renderMenu(){
+  const semLabel = document.getElementById('semana-label');
+  if(menuSemanal){
+    const d=new Date(menuSemanal.generado);
+    semLabel.textContent=`Generado el ${d.toLocaleDateString('es-ES',{weekday:'long',day:'numeric',month:'long'})}`;
+  }
+  renderFilterChips();
+  const container = document.getElementById('menu-week');
+  if(!menuSemanal){ container.innerHTML=`<div class="empty-state"><div class="empty-icon">🥘</div><div class="empty-text">Pulsa "Generar menú" para crear tu menú semanal.</div></div>`; return; }
+  container.innerHTML = menuSemanal.dias.map((d,di)=>{
+    const showTupper = !filterTag || d.tupper.tags.includes(filterTag);
+    const showCena = !filterTag || d.cena.tags.includes(filterTag);
+    if(!showTupper && !showCena) return '';
+    return `<div class="menu-day">
+      <div class="menu-day-header">
+        <span class="menu-day-name">${d.dia}</span>
+      </div>
+      <div class="menu-day-body">
+        ${showTupper?mealRow(d.tupper,'🥡 Tupper',di,'tupper'):''}
+        ${showCena?mealRow(d.cena,'🌙 Cena',di,'cena'):''}
+      </div>
+    </div>`;
+  }).join('');
+}
+function mealRow(r,label,di,tipo){
+  return `<div class="menu-meal" onclick="openRecipe(${r.id})">
+    <span class="menu-meal-type">${label}</span>
+    <div style="flex:1">
+      <div class="menu-meal-name">${r.nombre}</div>
+      <div class="menu-meal-tags">${r.tags.map(t=>`<span class="tag tag-${t.replace('í','i').replace('á','a').replace('ó','o')}">${t}</span>`).join('')}</div>
+    </div>
+    <button class="menu-change-btn" onclick="event.stopPropagation();openSelect(${di},'${tipo}')">⇄</button>
+  </div>`;
+}
+
+function openRecipe(id){
+  const r=RECETAS.find(x=>x.id===id); if(!r) return;
+  const tags=r.tags.map(t=>`<span class="tag tag-${t.replace('í','i').replace('á','a').replace('ó','o')}">${t}</span>`).join('');
+  document.getElementById('recipe-modal-body').innerHTML=`
+    <div class="modal-title">${r.nombre}</div>
+    <div class="modal-tags">${tags}</div>
+    <div style="font-size:13px;color:var(--text3)">⏱ ${r.tiempo}</div>
+    <div class="modal-section">Ingredientes</div>
+    <ul class="ingr-list">${r.ingredientes.map(i=>`<li>${i}</li>`).join('')}</ul>
+    <div class="modal-section">Preparación</div>
+    <ol class="step-list">${r.pasos.map(p=>`<li>${p}</li>`).join('')}</ol>
+    <button class="btn-compra" onclick="addIngredientesToCompra(${r.id})">🛒 Añadir ingredientes a la compra</button>
+    <button class="btn-outline" onclick="document.getElementById('recipe-modal').classList.remove('open')">Cerrar</button>
+  `;
+  document.getElementById('recipe-modal').classList.add('open');
+}
+function closeRecipeIfOverlay(e){ if(e.target===document.getElementById('recipe-modal')) document.getElementById('recipe-modal').classList.remove('open'); }
+
+function addIngredientesToCompra(id){
+  const r=RECETAS.find(x=>x.id===id); if(!r) return;
+  r.ingredientes.forEach(ing=>{
+    if(!compra.find(c=>c.name.toLowerCase()===ing.toLowerCase()))
+      compra.push({id:compraIdSeq++,name:ing,done:false});
+  });
+  save('compra_items',compra); save('compra_seq',compraIdSeq);
+  document.getElementById('recipe-modal').classList.remove('open');
+  showToast(`${r.ingredientes.length} ingredientes añadidos 🛒`);
+}
+
+let selectDia=null,selectTipo=null;
+let selectFilter=null;
+function openSelect(di,tipo){
+  selectDia=di; selectTipo=tipo; selectFilter=null;
+  renderSelectModal();
+  document.getElementById('select-modal').classList.add('open');
+}
+function renderSelectModal(){
+  const tags=['fit','indulgente','rápido','vegano','proteína'];
+  const chips=document.getElementById('select-filter-chips');
+  chips.innerHTML=`<div class="chip${!selectFilter?' active':''}" onclick="setSelectFilter(null)">Todos</div>`+
+    tags.map(t=>`<div class="chip${selectFilter===t?' active':''}" onclick="setSelectFilter('${t}')">${t}</div>`).join('');
+  const list=document.getElementById('select-list');
+  let recetas=RECETAS.filter(r=>r.tipo===selectTipo);
+  if(selectFilter) recetas=recetas.filter(r=>r.tags.includes(selectFilter));
+  list.innerHTML=recetas.map(r=>`
+    <div class="receta-card" onclick="selectReceta(${r.id})">
+      <div>
+        <div style="font-weight:500;font-size:14px">${r.nombre}</div>
+        <div class="menu-meal-tags" style="margin-top:4px">${r.tags.map(t=>`<span class="tag tag-${t.replace('í','i').replace('á','a').replace('ó','o')}">${t}</span>`).join('')}</div>
+      </div>
+      <span style="color:var(--text3);font-size:14px">→</span>
+    </div>`).join('');
+}
+function setSelectFilter(t){ selectFilter=t; renderSelectModal(); }
+function selectReceta(id){
+  const r=RECETAS.find(x=>x.id===id);
+  if(menuSemanal&&r){
+    menuSemanal.dias[selectDia][selectTipo]=r;
+    save('menu_semanal',menuSemanal);
+  }
+  document.getElementById('select-modal').classList.remove('open');
+  renderMenu();
+}
+
+function menuACompra(){
+  if(!menuSemanal){ showToast('Genera el menú primero'); return; }
+  let added=0;
+  menuSemanal.dias.forEach(d=>{
+    [d.tupper,d.cena].forEach(r=>{
+      if(r) r.ingredientes.forEach(ing=>{
+        if(!compra.find(c=>c.name.toLowerCase()===ing.toLowerCase())){
+          compra.push({id:compraIdSeq++,name:ing,done:false}); added++;
+        }
+      });
+    });
+  });
+  save('compra_items',compra); save('compra_seq',compraIdSeq);
+  showToast(`${added} productos añadidos a la compra 🛒`);
+}
+
+// ═══════════════════════════════════════════
+// TAREAS
+// ═══════════════════════════════════════════
+function diasDesde(fecha){
+  if(!fecha) return 9999;
+  return Math.floor((Date.now()-new Date(fecha))/(1000*60*60*24));
+}
+function necesitaHacerse(t){ return diasDesde(t.ultima) >= t.freq; }
+function diasAtraso(t){ return Math.max(0, diasDesde(t.ultima) - t.freq); }
+
+function asignarRandom(){ return Math.random()<0.5 ? 'Hugo':'Edurne'; }
+
+function reasignarTareas(){
+  tareas.forEach(t=>{ if(necesitaHacerse(t)) t.asignado=asignarRandom(); });
+  save('tareas_list',tareas); renderTareas(); showToast('Tareas reasignadas 🎲');
+}
+
+function renderTareas(){
+  // Auto-asignar las que no tienen asignado y toca hacerlas
+  tareas.forEach(t=>{ if(necesitaHacerse(t)&&!t.asignado) t.asignado=asignarRandom(); });
+  save('tareas_list',tareas);
+
+  const pendientes = tareas.filter(t=>necesitaHacerse(t)&&!t.hoyDone);
+  const hechas = tareas.filter(t=>t.hoyDone);
+  const proximas = tareas.filter(t=>!necesitaHacerse(t)&&!t.hoyDone);
+
+  const sub = document.getElementById('tareas-sub');
+  sub.textContent = `${pendientes.length} pendiente${pendientes.length!==1?'s':', todo al día'}`;
+
+  const nav = document.getElementById('nav-tareas');
+  if(pendientes.length>0) nav.querySelector('.nav-icon').innerHTML=`🧹<span class="counter-badge">${pendientes.length}</span>`;
+  else nav.querySelector('.nav-icon').innerHTML='🧹';
+
+  const list = document.getElementById('tareas-list');
+  let html='';
+  if(pendientes.length>0){
+    html+=`<div class="section-label">Para hoy (${pendientes.length})</div>`;
+    pendientes.forEach(t=>html+=tareaHTML(t));
+  }
+  if(proximas.length>0){
+    html+=`<div class="section-label" style="margin-top:20px">Próximas</div>`;
+    proximas.forEach(t=>html+=tareaHTML(t));
+  }
+  if(hechas.length>0){
+    html+=`<div class="section-label" style="margin-top:20px">Hechas hoy ✓</div>`;
+    hechas.forEach(t=>html+=tareaHTML(t));
+  }
+  list.innerHTML=html;
+}
+
+function tareaHTML(t){
+  const pending = necesitaHacerse(t)&&!t.hoyDone;
+  const atraso = diasAtraso(t);
+  const initials = t.asignado ? t.asignado.substring(0,2).toUpperCase() : '??';
+  const assigneeClass = t.asignado==='Hugo'?'hugo':'edurne';
+  let metaText='';
+  if(t.hoyDone) metaText='Hecho hoy ✓';
+  else if(atraso>0) metaText=`${atraso} día${atraso>1?'s':''} de retraso`;
+  else if(!t.ultima) metaText=`Cada ${t.freq} días · Sin hacer`;
+  else { const proximo=t.freq-diasDesde(t.ultima); metaText=`En ${Math.max(0,proximo)} día${proximo!==1?'s':''}`; }
+  return `<div class="tarea-card${pending?' pending':''}${t.hoyDone?' done-today':''}">
+    <div class="tarea-assignee ${assigneeClass}">${t.asignado?initials:'?'}</div>
+    <div class="tarea-body">
+      <div class="tarea-name">${t.nombre}</div>
+      <div class="tarea-meta${atraso>0&&!t.hoyDone?' warn':''}">${metaText}</div>
+    </div>
+    <div class="tarea-check" onclick="toggleTarea(${t.id})">
+      <span class="tarea-done-icon">✓</span>
+    </div>
+  </div>`;
+}
+
+function toggleTarea(id){
+  const t=tareas.find(x=>x.id===id); if(!t) return;
+  if(t.hoyDone){
+    t.hoyDone=false; t.ultima=null;
+  } else {
+    t.hoyDone=true; t.ultima=new Date().toISOString();
+  }
+  save('tareas_list',tareas); renderTareas();
+}
+
+function openAddTarea(){ document.getElementById('tarea-modal').classList.add('open'); }
+function saveTarea(){
+  const name=document.getElementById('new-tarea-name').value.trim();
+  const freq=parseInt(document.getElementById('new-tarea-freq').value)||7;
+  if(!name) return;
+  tareas.push({id:tareaIdSeq++,nombre:name,freq,ultima:null,asignado:asignarRandom(),hoyDone:false});
+  save('tareas_list',tareas); save('tarea_seq',tareaIdSeq);
+  document.getElementById('tarea-modal').classList.remove('open');
+  document.getElementById('new-tarea-name').value='';
+  renderTareas(); showToast('Tarea añadida ✓');
+}
+
+// ═══════════════════════════════════════════
+// TOAST
+// ═══════════════════════════════════════════
+function showToast(msg){
+  const t=document.getElementById('toast'); t.textContent=msg;
+  t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2200);
+}
+
+// ═══════════════════════════════════════════
+// API SIRI (URL scheme)
+// /add?item=leche  — para el atajo de Siri
+// ═══════════════════════════════════════════
+(function(){
+  const params=new URLSearchParams(window.location.search);
+  const item=params.get('item')||params.get('add');
+  if(item){ addCompra(item); showScreen('compra',document.querySelector('.nav-btn')); }
+})();
+
+// INIT
+renderCompra();
+renderTareas();
+</script>
+</body>
+</html>
